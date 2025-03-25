@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Грамматика комплексных чисел</title>
+    <style>
+        body {
+            font-family: Segoe UI, sans-serif;
+            margin: 30px;
+            line-height: 1.7;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-left: 4px solid #aaa;
+            border-radius: 6px;
+            font-family: Consolas, monospace;
+            white-space: pre-wrap;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            background-color: #f2f2f2;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Грамматика</h1>
+
+    <p>
+        Определим грамматику комплексных чисел языка Python <code>G[&lt;C&gt;]</code> в нотации Хомского с продукциями <code>P</code>:
+    </p>
+
+    <pre>
+&lt;C&gt; → &lt;Letter&gt;&lt;Name&gt;
+&lt;Name&gt; → &lt;Letter&gt;&lt;NameRem&gt;
+&lt;NameRem&gt; → &lt;Letter&gt;&lt;NameRem&gt;
+&lt;NameRem&gt; → &lt;Digit&gt;&lt;NameDigitRem&gt;
+&lt;NameDigitRem&gt; → &lt;Digit&gt;&lt;NameDigitRem&gt;
+&lt;NameRem&gt; → '='&lt;Stmt&gt;
+&lt;NameDigitRem&gt; → '='&lt;Stmt&gt;
+&lt;Stmt&gt; → 'complex'&lt;Def&gt;
+&lt;Def&gt; → '('&lt;DefRem&gt;
+&lt;DefRem&gt; → '+'&lt;FirstNum&gt;
+&lt;DefRem&gt; → '-'&lt;FirstNum&gt;
+&lt;DefRem&gt; → &lt;Digit&gt;&lt;FirstNumRem&gt;
+&lt;FirstNum&gt; → &lt;Digit&gt;&lt;FirstNumRem&gt;
+&lt;FirstNumRem&gt; → &lt;Digit&gt;&lt;FirstNumRem&gt;
+&lt;FirstNumRem&gt; → '.'&lt;FirstNumFrac&gt;
+&lt;FirstNumFrac&gt; → &lt;Digit&gt;&lt;FirstNumFrac&gt;
+&lt;FirstNumRem&gt; → ','&lt;DefIm&gt;
+&lt;FirstNumFrac&gt; → ','&lt;DefIm&gt;
+&lt;DefIm&gt; → '+' &lt;SecondNum&gt;
+&lt;DefIm&gt; → '-' &lt;SecondNum&gt;
+&lt;DefIm&gt; → &lt;Digit&gt;&lt;SecondNumRem&gt;
+&lt;SecondNum&gt; → &lt;Digit&gt;&lt;SecondNumRem&gt;
+&lt;SecondNumRem&gt; → &lt;Digit&gt;&lt;SecondNumRem&gt;
+&lt;SecondNumRem&gt; → '.'&lt;SecondNumFrac&gt;
+&lt;SecondNumFrac&gt; → &lt;Digit&gt;&lt;SecondNumFrac&gt;
+&lt;SecondNumFrac&gt; → ')'&lt;End&gt;
+&lt;SecondNumRem&gt; → ')'&lt;End&gt;
+&lt;End&gt; → ';'
+&lt;Digit&gt;</> → "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+&lt;Letter&gt; → "a" | "b" | "c" | … | "y" | "z" | "A" | "B" | "C" | … | "Y" | "Z"
+    </pre>
+
+    <p>Следуя введённому формальному определению грамматики, представим <code>G[&lt;C&gt;]</code> её составляющими:</p>
+
+    <ul>
+        <li><strong>Z</strong> = &lt;C&gt;</li>
+        <li><strong>V<sub>T</sub></strong> = {a, b, c, …, y, z, A, B, C, …, Y, Z, =, +, -, (, ), ., ,, ;, 0, 1, …, 8, 9}</li>
+        <li><strong>V<sub>N</sub></strong> = {&lt;C&gt;, &lt;Name&gt;, &lt;NameRem&gt;, &lt;NameDigitRem&gt;, &lt;Stmt&gt;, &lt;Def&gt;, &lt;DefRem&gt;, &lt;FirstNum&gt;, &lt;FirstNumRem&gt;, &lt;FirstNumFrac&gt;, &lt;DefIm&gt;, &lt;SecondNum&gt;, &lt;SecondNumRem&gt;, &lt;SecondNumFrac&gt;, &lt;End&gt;}</li>
+    </ul>
+
+</body>
+</html>

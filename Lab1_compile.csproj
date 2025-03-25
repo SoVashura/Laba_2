@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{BFEA2D76-BC3D-4C3B-8848-6B33EDBF3266}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Lab1_compile</RootNamespace>
+    <AssemblyName>Lab1_compile</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Lexer.cs" />
+    <Compile Include="ParseError.cs" />
+    <Compile Include="Resources\StringsEN.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>StringsEN.resx</DependentUpon>
+    </Compile>
+    <Compile Include="StatusBarManager.cs" />
+    <Compile Include="EditorTab.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Token.cs" />
+    <EmbeddedResource Include="Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="Resources\Strings.resx" />
+    <EmbeddedResource Include="Resources\StringsEN.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StringsEN.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blank-page.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Directory.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\save.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\folder %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\undo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\redo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\copy-two-paper-sheets-interface-symbol.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\scissors.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\play-button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\question.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\about.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\task.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\grammar.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\classification.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\analysis.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Scheme1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\errors.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tree1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tree2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3763151_cloud_data_developer_platform_programming_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2190977_add_append_circle_create_new_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8665560_folder_open_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8678769_save_fill_data_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2203523_arrow_back_botton_left_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\2203522_arrow_botton_next_right_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8665215_copy_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\3671688_cut_edit_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8665765_paste_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\9856308_power_button_switch_on_icon %281%29.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\8679812_question_help_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\216648_i_icon.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
