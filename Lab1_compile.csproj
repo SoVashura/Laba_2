@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parser.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="ParseError.cs" />
     <Compile Include="Resources\StringsEN.Designer.cs">
@@ -195,6 +196,78 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\216648_i_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\grammar_classification.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\grammar_development.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\help.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\analysis_method.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\code.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\test_examples.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\references.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\task_description.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test6.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\diagram.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\graph.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\images\test3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\analysis_method.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\code.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\grammar_classification.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\grammar_development.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\help.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\references.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\task_description.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\Debug\html\test_examples.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

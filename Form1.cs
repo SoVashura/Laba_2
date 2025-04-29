@@ -28,6 +28,10 @@ namespace Lab1_compile
         public Form1()
         {
             InitializeComponent();
+            пускToolStripMenuItem.Click += пускToolStripMenuItem_Click;
+            вызовСправкиToolStripMenuItem.Click += вызовСправкиToolStripMenuItem_Click;
+            постановкаToolStripMenuItem.Click += постановкаToolStripMenuItem_Click;
+            грамматикаToolStripMenuItem.Click += грамматикаToolStripMenuItem_Click;
             statusBar = new StatusBarManager(this);
             statusBar.HideCursorPosition(); // Скрываем метку при запуске
         }
@@ -133,7 +137,7 @@ namespace Lab1_compile
 
             newTab.UndoStack.Push(""); // Запоминаем пустое состояние
             editor.Font = currentFont; // Применяем текущий шрифт
-            
+
             //output.Font = currentFont;
 
             tabControl1.SelectedTab.Text = "Новый документ"; // Устанавливаем имя вкладки
@@ -191,7 +195,7 @@ namespace Lab1_compile
                 editor.Text = File.ReadAllText(filePath);
                 editor.Tag = filePath;
 
-              
+
                 panel.Panel1.Controls.Add(editor);
                 panel.Panel1.Controls.Add(panelLineNumbers); // Добавляем панель нумерации
                 panel.Panel2.Controls.Add(output);
@@ -259,7 +263,7 @@ namespace Lab1_compile
                     return base.ProcessCmdKey(ref msg, keyData);
             }
         }
-        
+
 
         private void сохранитьКакToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -282,6 +286,11 @@ namespace Lab1_compile
             {
                 MessageBox.Show("Нет открытого документа", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+        private void пускToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Просто вызываем обработчик кнопки
+            button9_Click(sender, null);
         }
         private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -402,8 +411,8 @@ namespace Lab1_compile
             int selectionStart = editor.SelectionStart;
             int selectionLength = editor.SelectionLength;
 
-            string[] keywords = { "int", "float", "double", "string", "if", "else", "while", "for", "return", "void", "char", "struct" };
-            string[] operators = { "+", "-", "*", "/", "=", "==", "!=", "{", "}", "<=", ">=" };
+            string[] keywords = { "int", "float", "double", "string", "char", "struct" };
+            string[] operators = { "{", "}" };
 
             editor.SuspendLayout();
             int cursorPosition = editor.SelectionStart;
@@ -749,87 +758,475 @@ namespace Lab1_compile
             );
         }
 
-        private void button10_Click(object sender, EventArgs e)
-        {
-            string tempPath = Path.Combine(Path.GetTempPath(), "About.html");
 
-            try
-            {
-                // Сохраняем встроенный HTML в файл
-                File.WriteAllText(tempPath, Properties.Resources.about);
-                // Открываем в браузере
-                Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Не удалось открыть справку: " + ex.Message);
-            }
+        private void вызовСправкиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ShowHelp();
         }
 
-        private void button9_Click(object sender, EventArgs e)
+        private void button10_Click(object sender, EventArgs e)
+        {
+            ShowHelp();
+        }
+
+        private void ShowHelp()
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "help.html");
+
+                try
+                {
+                    File.WriteAllText(helpPath, Properties.Resources.help);
+                    Process.Start(new ProcessStartInfo(helpPath)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка открытия: {ex.Message}");
+                }
+        }
+        /*private void ParseCurrentFile()
         {
             if (tabControl1.SelectedTab is EditorTab tab)
             {
+                var panel = tab.Controls[0] as SplitContainer;
+                var editor = panel.Panel1.Controls[0] as RichTextBox;
+                var tokenTable = panel.Panel2.Controls[0] as DataGridView;
+
+                // Очистка предыдущих результатов
+                tokenTable.Rows.Clear();
+                ClearErrorHighlights(editor);
+
+                // Лексический анализ
+                var lexer = new Lexer(editor.Text);
+                var tokens = lexer.Tokenize();
+                DisplayTokens(tokenTable, tokens);
+
+                // Проверка лексических ошибок
+                var lexErrors = lexer.GetErrors();
+                if (lexErrors.Any())
+                {
+                    DisplayAllErrors(editor, lexErrors);
+                    return;
+                }
+
+                // Синтаксический анализ
+                var parser = new Parser(tokens);
+                bool isValid = parser.Parse();
+
+                // Отображение ВСЕХ ошибок
+                if (parser.Errors.Any())
+                {
+                    DisplayAllErrors(editor, parser.Errors);
+                }
+                else
+                {
+                    MessageBox.Show("Синтаксис корректен!", "Успех",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }*/
+
+        private void DisplayAllErrors(RichTextBox editor, List<ParseError> errors)
+        {
+            // Очищаем предыдущие подсветки
+            editor.SelectAll();
+            editor.SelectionBackColor = editor.BackColor;
+            editor.SelectionLength = 0;
+
+            var errorText = new StringBuilder();
+            errorText.AppendLine("Найдены ошибки:");
+            errorText.AppendLine();
+
+            foreach (var error in errors)
+            {
+                // Добавляем сообщение об ошибке
+                errorText.AppendLine($"• {error.Message}");
+                if (error.Position >= 0)
+                {
+                    errorText.AppendLine($"  Позиция: {error.Position}");
+                }
+
+                // Подсвечиваем ошибку в редакторе
+                if (error.Position >= 0 && error.Position < editor.TextLength)
+                {
+                    int length = Math.Max(1, Math.Min(error.Length, editor.TextLength - error.Position));
+                    editor.Select(error.Position, length);
+                    editor.SelectionBackColor = Color.Pink;
+                }
+            }
+
+            // Возвращаем курсор в начало
+            editor.Select(0, 0);
+            editor.ScrollToCaret();
+
+            // Показываем все ошибки
+            MessageBox.Show(errorText.ToString(),
+                $"Найдено {errors.Count} ошибок",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+
+
+        private void DisplayParseError(ParseError error)
+        {
+            string positionInfo = error.Position >= 0 ?
+                $" (позиция: {error.Position})" : "";
+
+            MessageBox.Show($"{error.Message}{positionInfo}",
+                "Ошибка синтаксиса",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+        //парсер
+        /*private void button9_Click(object sender, EventArgs e)
+        {
+            ParseCurrentFile();
+            
+        }*/
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Проверка выбранной вкладки
+                if (tabControl1.SelectedTab == null || !(tabControl1.SelectedTab is EditorTab))
+                {
+                    MessageBox.Show("Выберите документ для анализа!", "Ошибка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                EditorTab tab = tabControl1.SelectedTab as EditorTab;
                 SplitContainer panel = tab.Controls[0] as SplitContainer;
                 RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
-                //RichTextBox outputBox = panel.Controls[2] as RichTextBox; // Вывод ошибок в нижний RichTextBox
                 DataGridView table = panel.Panel2.Controls[0] as DataGridView;
+
+                // Проверка на пустой текст
+                if (string.IsNullOrWhiteSpace(editor.Text))
+                {
+                    MessageBox.Show("Документ пуст!", "Ошибка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Запуск анализатора
                 Lexer lexer = new Lexer(editor.Text);
                 List<Token> tokens = lexer.Tokenize();
                 List<ParseError> errors = lexer.GetErrors();
 
+                
 
+                // Отображение результатов
                 DisplayTokens(table, tokens);
-                DisplayParseErrors(errors);
+
+                if (errors.Count > 0)
+                    DisplayParseErrors(errors);
+                else
+                {
+                    if (tokens.Last().Value != ";")
+                    {
+                        MessageBox.Show($"Ошибка при анализе: Ожидался символ ;", "Ошибка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Анализ завершен успешно!", "Готово",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                    
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при анализе: {ex.Message}", "Ошибка",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void DisplayTokens(DataGridView tokenTable, List<Token> tokens)
+        private void DisplayTokens(DataGridView table, List<Token> tokens)
         {
-            tokenTable.Rows.Clear();
-
+            table.Rows.Clear();
             foreach (var token in tokens)
             {
-                int rowIndex = tokenTable.Rows.Add(token.Code, token.Type, token.Value, token.Start, token.End);
+                int rowIdx = table.Rows.Add(
+                    token.Code,
+                    token.Type,
+                    token.Value,
+                    token.Start,
+                    token.End
+                );
 
-                // Если токен — ошибка, выделяем строку красным
+                // Подсветка ошибочных токенов
                 if (token.Code == -1)
                 {
-                    tokenTable.Rows[rowIndex].DefaultCellStyle.ForeColor = Color.Red;
-                    tokenTable.Rows[rowIndex].DefaultCellStyle.Font = new Font(tokenTable.Font, FontStyle.Bold);
+                    table.Rows[rowIdx].DefaultCellStyle.ForeColor = Color.Red;
                 }
             }
-            
         }
 
         private void DisplayParseErrors(List<ParseError> errors)
         {
-
             if (errors.Count == 0)
             {
-                MessageBox.Show(
-                    "Ошибок нет.",
-            "Результат",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Information
-            );
+                MessageBox.Show("Ошибок нет.", "Результат",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                string temp = "";
-                foreach (var error in errors)
+                MessageBox.Show(errors[0].ToString(), "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void DisplayParsingErrors(RichTextBox editor, List<ParseError> errors)
+        {
+            // Очищаем предыдущие подсветки
+            editor.SelectAll();
+            editor.SelectionBackColor = editor.BackColor;
+            editor.SelectionLength = 0;
+
+            var errorText = new StringBuilder();
+            errorText.AppendLine("Найдены синтаксические ошибки:");
+            errorText.AppendLine();
+
+            foreach (var error in errors)
+            {
+                // Добавляем сообщение об ошибке
+                errorText.AppendLine($"• {error.Message}");
+                if (error.Position >= 0)
                 {
-                    temp += $"{error.Message} (позиция: {error.Position})\n";
+                    errorText.AppendLine($"  Позиция: {error.Position}");
                 }
+                errorText.AppendLine();
+
+                // Подсвечиваем ошибку в редакторе (с защитой от выхода за границы)
+                if (error.Position >= 0 && error.Position < editor.TextLength)
                 {
-                    MessageBox.Show(
-                        temp,
-                "Результат",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-                );
+                    // Заменяем Math.Clamp на ручной расчет
+                    int length = error.Length;
+                    if (length < 1) length = 1;
+                    if (error.Position + length > editor.TextLength)
+                        length = editor.TextLength - error.Position;
+
+                    editor.Select(error.Position, length);
+                    editor.SelectionBackColor = Color.Pink;
                 }
             }
+
+            // Возвращаем курсор в начало
+            editor.Select(0, 0);
+            editor.ScrollToCaret();
+
+            // Показываем все ошибки
+            MessageBox.Show(errorText.ToString(),
+                errors.Count == 1 ? "Найдена 1 ошибка" : $"Найдено {errors.Count} ошибок",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+        }
+
+        private void постановкаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "task_description.html");
+
+                try
+                {
+                    // Явно указываем использовать только один процесс
+                    var process = new Process();
+                    process.StartInfo = new ProcessStartInfo
+                    {
+                        FileName = helpPath,
+                        UseShellExecute = true,
+                        // Добавляем это для предотвращения дублирования
+                        WindowStyle = ProcessWindowStyle.Normal
+                    };
+                    process.Start();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть справку: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+        }
+
+        private void грамматикаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "grammar_development.html");
+            try
+            {
+                File.WriteAllText(helpPath, Properties.Resources.grammar_development);
+                Process.Start(new ProcessStartInfo(helpPath)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не удалось открыть грамматику: {ex.Message}",
+                              "Ошибка",
+                              MessageBoxButtons.OK,
+                              MessageBoxIcon.Error);
+            }
+        }
+
+        private void классификацияГрамматикиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "grammar_classification.html");
+
+                try
+                {
+                    File.WriteAllText(helpPath, Properties.Resources.grammar_classification);
+                    Process.Start(new ProcessStartInfo(helpPath)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть классификацию грамматики: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+        }
+
+
+        private void методАнализаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "analysis_method.html");
+
+            string imagePath1 = Path.Combine(Path.GetTempPath(), "diagram.png");
+            string imagePath2 = Path.Combine(Path.GetTempPath(), "graph.png");
+
+            Properties.Resources.diagram.Save(imagePath1);
+            Properties.Resources.graph.Save(imagePath2);
+
+            string html = Properties.Resources.analysis_method;
+
+
+            html = html.Replace("src=\"images/diagram.png\"", $"src=\"file:///{imagePath1.Replace("\\", "/")}\"");
+            html = html.Replace("src=\"images/graph.png\"", $"src=\"file:///{imagePath2.Replace("\\", "/")}\"");
+
+            if (File.Exists(helpPath))
+            {
+                try
+                {
+                    File.WriteAllText(helpPath, html);
+                    Process.Start(new ProcessStartInfo(helpPath)
+                    {
+                        UseShellExecute = true,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть метод анализа: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Файл метод анализа не найден по пути: {helpPath}",
+                              "Ошибка",
+                              MessageBoxButtons.OK,
+                              MessageBoxIcon.Error);
+            }
+        }
+
+        private void тестовыйПримерToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string helpPath = Path.Combine(Path.GetTempPath(), "test_examples.html");
+
+                string imagePath1 = Path.Combine(Path.GetTempPath(), "test1.png");
+                string imagePath2 = Path.Combine(Path.GetTempPath(), "test2.png");
+                string imagePath3 = Path.Combine(Path.GetTempPath(), "test3.png");
+                string imagePath4 = Path.Combine(Path.GetTempPath(), "test4.png");
+                string imagePath5 = Path.Combine(Path.GetTempPath(), "test5.png");
+                string imagePath6 = Path.Combine(Path.GetTempPath(), "test6.png");
+
+                Properties.Resources.test1.Save(imagePath1);
+                Properties.Resources.test2.Save(imagePath2);
+                Properties.Resources.test3.Save(imagePath3);
+                Properties.Resources.test4.Save(imagePath4);
+                Properties.Resources.test5.Save(imagePath5);
+                Properties.Resources.test6.Save(imagePath6);
+
+                string html = Properties.Resources.test_examples;
+
+
+                html = html.Replace("src=\"images/test1.png\"", $"src=\"file:///{imagePath1.Replace("\\", "/")}\"");
+                html = html.Replace("src=\"images/test2.png\"", $"src=\"file:///{imagePath2.Replace("\\", "/")}\"");
+                html = html.Replace("src=\"images/test3.png\"", $"src=\"file:///{imagePath3.Replace("\\", "/")}\"");
+                html = html.Replace("src=\"images/test4.png\"", $"src=\"file:///{imagePath4.Replace("\\", "/")}\"");
+                html = html.Replace("src=\"images/test5.png\"", $"src=\"file:///{imagePath5.Replace("\\", "/")}\"");
+                html = html.Replace("src=\"images/test6.png\"", $"src=\"file:///{imagePath6.Replace("\\", "/")}\"");
+
+                File.WriteAllText(helpPath, html);
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = helpPath,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+            }
+            catch (Exception ex)
+            {
+                    MessageBox.Show($"Не удалось открыть тестовые примеры: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+            }
+        }
+
+        private void списокЛитературыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "references.html");
+
+                try
+                {
+                    File.WriteAllText(helpPath, Properties.Resources.references);
+                    Process.Start(new ProcessStartInfo(helpPath)
+                    {
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть список использованных источников: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+        }
+
+        private void исходныйКодПрограммыToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string helpPath = Path.Combine(Path.GetTempPath(), "code.html");
+
+                try
+                {
+                    File.WriteAllText (helpPath, Properties.Resources.code);
+                    Process.Start(new ProcessStartInfo(helpPath)
+                    {
+                        UseShellExecute = true,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Не удалось открыть исходный код программы: {ex.Message}",
+                                  "Ошибка",
+                                  MessageBoxButtons.OK,
+                                  MessageBoxIcon.Error);
+                }
+
         }
     }
 }

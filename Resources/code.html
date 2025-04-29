@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Исходный код программы - Лексический анализатор структур C</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        pre {
+            background: #f8f8f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            overflow-x: auto;
+            tab-size: 4;
+            border-radius: 3px;
+        }
+        .file-header {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            margin: 20px 0 -15px 0;
+            border-radius: 3px 3px 0 0;
+            font-weight: bold;
+        }
+        .keyword { color: #0000ff; }
+        .type { color: #2b91af; }
+        .comment { color: #008000; }
+        .string { color: #a31515; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Исходный код программы</h1>
+        <p>Лексический анализатор для проверки синтаксиса структур на языке C</p>
+
+        <div class="file-header">Lexer.cs</div>
+        <pre><code>using System.Collections.Generic;
+
+internal class Lexer
+{
+    private string _input;
+    private int _position;
+    private List&lt;ParseError&gt; _errors;
+    private bool _expectIdentifier = false;
+
+    public Lexer(string input)
+    {
+        _input = input;
+        _position = 0;
+        _errors = new List&lt;ParseError&gt;();
+    }
+
+    public List&lt;Token&gt; Tokenize()
+    {
+        List&lt;Token&gt; tokens = new List&lt;Token&gt;();
+
+        while (_position &lt; _input.Length)
+        {
+            char current = _input[_position];
+
+            // Обработка пробелов
+            if (char.IsWhiteSpace(current))
+            {
+                if (_position &gt; 0 &amp;&amp; IsLetter(_input[_position - 1]) &amp;&amp;
+                    _position &lt; _input.Length - 1 &amp;&amp; IsLetter(_input[_position + 1]))
+                {
+                    tokens.Add(new Token(12, "Пробел", " ", _position, _position));
+                }
+                _position++;
+                continue;
+            }
+
+            // Обработка слов (идентификаторы/ключевые слова)
+            if (IsLetter(current) || current == '_')
+            {
+                tokens.Add(ProcessWord());
+                continue;
+            }
+
+            // Обработка специальных символов
+            if (current == '{')
+            {
+                tokens.Add(new Token(9, "Скобка", "{", _position, _position));
+                _position++;
+                _expectIdentifier = false;
+                continue;
+            }
+
+            if (current == '}')
+            {
+                tokens.Add(new Token(10, "Скобка", "}", _position, _position));
+                _position++;
+                continue;
+            }
+
+            if (current == ';')
+            {
+                tokens.Add(new Token(11, "Оператор", ";", _position, _position));
+                _position++;
+                _expectIdentifier = true;
+                continue;
+            }
+
+            // Недопустимый символ
+            tokens.Add(ProcessInvalidChar(current));
+        }
+        
+        // Постобработка токенов
+        for (int i = 0; i &lt; tokens.Count - 1; i++)
+        {
+            if (tokens[i].Code == -1 &amp;&amp; tokens[i + 1].Code == 1)
+            {
+                tokens.Remove(tokens[i + 1]);
+            }
+        }
+        return tokens;
+    }
+
+    private Token ProcessWord()
+    {
+        int start = _position;
+        while (_position &lt; _input.Length &amp;&amp; IsLetterOrDigit(_input[_position]))
+        {
+            _position++;
+        }
+
+        string word = _input.Substring(start, _position - start);
+
+        // Проверка на недопустимые символы
+        for (int i = 0; i &lt; word.Length; i++)
+        {
+            if (!IsLetterOrDigit(word[i]))
+            {
+                _errors.Add(new ParseError($"Недопустимый символ в идентификаторе: '{word[i]}'",
+                    new Token(-1, "Ошибка", word[i].ToString(), start + i, start + i)));
+                _position = start + i + 1;
+                return new Token(-1, "Ошибка", word, start, _position - 1);
+            }
+        }
+
+        // Определение типа токена
+        if (word == "struct") return new Token(7, "Ключевое слово", word, start, _position - 1);
+        else if (word == "int") return new Token(2, "Ключевое слово", word, start, _position - 1);
+        else if (word == "float") return new Token(3, "Ключевое слово", word, start, _position - 1);
+        else if (word == "string") return new Token(4, "Ключевое слово", word, start, _position - 1);
+        else if (word == "bool") return new Token(5, "Ключевое слово", word, start, _position - 1);
+        else if (word == "char") return new Token(6, "Ключевое слово", word, start, _position - 1);
+        else return new Token(1, "Идентификатор", word, start, _position - 1);
+    }
+
+    private Token ProcessInvalidChar(char c)
+    {
+        var error = new Token(-1, "Ошибка", c.ToString(), _position, _position);
+        _errors.Add(new ParseError($"Недопустимый символ: '{c}'", error));
+        _position++;
+        return error;
+    }
+
+    private bool IsLetter(char c) => (c &gt;= 'A' &amp;&amp; c &lt;= 'Z') || (c &gt;= 'a' &amp;&amp; c &lt;= 'z');
+    private bool IsLetterOrDigit(char c) => IsLetter(c) || char.IsDigit(c) || c == '_';
+
+    public List&lt;ParseError&gt; GetErrors() => _errors;
+}</code></pre>
+
+        <div class="file-header">Token.cs</div>
+        <pre><code>internal class Token
+{
+    public int Code { get; }
+    public string Type { get; }
+    public string Value { get; }
+    public int Start { get; }
+    public int End { get; }
+
+    public Token(int code, string type, string value, int start, int end)
+    {
+        Code = code;
+        Type = type;
+        Value = value;
+        Start = start;
+        End = end;
+    }
+
+    public override string ToString() => $"{Code} - {Type} - {Value} ({Start}-{End})";
+}</code></pre>
+
+        <div class="file-header">ParseError.cs</div>
+        <pre><code>internal class ParseError
+{
+    public string Message { get; }
+    public Token Token { get; }
+    public int Position => Token?.Start ?? -1;
+    public int Length => Token?.Value?.Length ?? 1;
+
+    public ParseError(string message, Token token)
+    {
+        Message = message;
+        Token = token;
+    }
+
+    public override string ToString() => Position &gt;= 0 ? $"{Message} (позиция: {Position})" : Message;
+}</code></pre>
+
+        <div class="file-header">Form1.cs (фрагмент)</div>
+        <pre><code>private void buttonRun(object sender, EventArgs e)
+{
+    if (tabControl1.SelectedTab is EditorTab tab)
+    {
+        SplitContainer panel = tab.Controls[0] as SplitContainer;
+        RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
+        DataGridView table = panel.Panel2.Controls[0] as DataGridView;
+        
+        Lexer lexer = new Lexer(editor.Text);
+        List&lt;Token&gt; tokens = lexer.Tokenize();
+        List&lt;ParseError&gt; errors = lexer.GetErrors();
+
+        DisplayTokens(table, tokens);
+        DisplayParseErrors(errors);
+    }
+}</code></pre>
+
+        <h2>Структура проекта</h2>
+        <pre>
+Project/
+├── Lexer.cs            # Лексический анализатор
+├── Token.cs            # Класс для хранения токенов
+├── ParseError.cs       # Класс для ошибок парсинга
+├── Form1.cs            # Основная форма приложения
+└── Properties/
+    └── Resources.resx  # Ресурсы приложения
+        </pre>
+    </div>
+</body>
+</html>

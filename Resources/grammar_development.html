@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Разработка грамматики</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1 { color: #2c3e50; }
+        .grammar { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; margin: 10px 0; }
+        .production { margin: 5px 0; }
+        .terminals { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>2. Разработка грамматики</h1>
+    <p>Определим грамматику объявления и определения структуры на языке С G[‹Start›] в нотации Хомского с продукциями P:</p>
+    
+    <div class="grammar">
+        <div class="production">1. ‹Start› → 'struct'‹Struct›</div>
+        <div class="production">2. ‹Struct› → ' '‹Name›</div>
+        <div class="production">3. ‹Name› → ‹Letter›‹NameRem›</div>
+        <div class="production">4. ‹NameRem› → ‹Letter›‹NameRem›</div>
+        <div class="production">5. ‹NameRem› → ‹Digit›‹NameRem›</div>
+        <div class="production">6. ‹NameRem› → '{'‹X›</div>
+        <div class="production">7. ‹X› → 'type'‹Space›</div>
+        <div class="production">8. ‹Space› → ' '‹Y›</div>
+        <div class="production">9. ‹Y› → ‹Letter›‹YRem›</div>
+        <div class="production">10. ‹YRem› → ‹Letter›‹YRem›</div>
+        <div class="production">11. ‹YRem› → ‹Digit›‹YRem›</div>
+        <div class="production">12. ‹YRem› → ';'‹X›</div>
+        <div class="production">13. ‹X› → '}'‹End›</div>
+        <div class="production">14. ‹End› → ';'</div>
+    </div>
+    
+    <p>Терминальные символы:</p>
+    <div class="terminals">
+        ‹Digit› → "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"<br>
+        ‹Letter› → "a" | "b" | "c" | ... | "z" | "A" | "B" | "C" | ... | "Z"
+    </div>
+    
+    <p>Следуя введенному формальному определению грамматики, представим G[‹Start›] ее составляющими:</p>
+    <ul>
+        <li>Z = ‹Start›;</li>
+        <li>VT = {a, b, c, ..., z, A, B, C, ..., Z, ;, _, {, }, 0, 1, 2, ..., 9};</li>
+        <li>VN = {‹Start›, ‹Struct›, ‹Name›, ‹NameRem›, ‹X›, ‹Space›, ‹Y›, ‹YRem›, ‹End›}.</li>
+    </ul>
+</body>
+</html>
