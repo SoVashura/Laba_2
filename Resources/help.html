@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справка - Лексический анализатор</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        h1 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 10px;
+        }
+        .content-list {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .content-list a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        .content-list a:hover {
+            text-decoration: underline;
+        }
+        .menu-item {
+            margin-bottom: 20px;
+        }
+        .menu-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        .back-to-top {
+            display: block;
+            text-align: right;
+            margin-top: 20px;
+        }
+        .back-to-top a {
+            color: #7f8c8d;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Справка - Руководство пользователя</h1>
+    
+    <div class="content-list">
+        <h3>Содержание:</h3>
+        <ul>
+            <li><a href="#functions">Функции приложения</a></li>
+            <li><a href="#menu">Описание основных пунктов меню</a>
+                <ul>
+                    <li><a href="#file-menu">Пункт «Файл»</a></li>
+                    <li><a href="#edit-menu">Пункт «Правка»</a></li>
+                    <li><a href="#start-menu">Пункт «Пуск»</a></li>
+                    <li><a href="#help-menu">Пункт «Справка»</a></li>
+                    <li><a href="#font-menu">Пункт «Шрифт»</a></li>
+                </ul>
+            </li>
+            <li><a href="#toolbar">Панель инструментов</a></li>
+            <li><a href="#additional">Дополнительные возможности</a></li>
+        </ul>
+    </div>
+
+    <section id="functions">
+        <h2>Функции приложения</h2>
+        <p>Приложение представляет собой текстовый редактор с возможностью лексического анализа текста. Оно поддерживает основные операции с текстом, управление шрифтами, работу с несколькими документами одновременно и включает справочную систему.</p>
+    </section>
+
+    <section id="menu">
+        <h2>Описание основных пунктов меню</h2>
+        
+        <div class="menu-item" id="file-menu">
+            <div class="menu-title">Пункт «Файл» меню текстового редактора</div>
+            <p>В пункте «Файл» меню текстового редактора реализован следующий функционал:</p>
+            <ul>
+                <li>Создание документа</li>
+                <li>Открытие документа</li>
+                <li>Сохранение текущих изменений в документе</li>
+                <li>Сохранение документа в новый файл</li>
+                <li>Выход из документа</li>
+            </ul>
+            <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+        </div>
+
+        <div class="menu-item" id="edit-menu">
+            <div class="menu-title">Пункт «Правка» меню текстового редактора</div>
+            <p>В пункте «Правка» меню текстового редактора реализован следующий функционал:</p>
+            <ul>
+                <li>Отмена изменений</li>
+                <li>Повтор последнего изменения</li>
+                <li>Вырезать текстовый фрагмент</li>
+                <li>Копировать текстовый фрагмент</li>
+                <li>Вставить текстовый фрагмент</li>
+                <li>Удалить текстовый фрагмент</li>
+                <li>Выделить все содержимое документа</li>
+            </ul>
+            <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+        </div>
+
+        <div class="menu-item" id="start-menu">
+            <div class="menu-title">Пункт «Пуск» меню текстового редактора</div>
+            <p>При нажатии на пункт «Пуск» происходит запуск лексического анализатора текста.</p>
+            <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+        </div>
+
+        <div class="menu-item" id="help-menu">
+            <div class="menu-title">Пункт «Справка» меню текстового редактора</div>
+            <p>Приложение имеет справочную систему, запускаемую командой «Вызов справки». Справка содержит описание всех реализованных функций меню.</p>
+            <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+        </div>
+
+        <div class="menu-item" id="font-menu">
+            <div class="menu-title">Пункт «Шрифт» меню текстового редактора</div>
+            <p>Интерфейс позволяет пользователю выбирать шрифт, с которым он хочет работать.</p>
+            <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+        </div>
+    </section>
+
+    <section id="toolbar">
+        <h2>Панель инструментов текстового редактора</h2>
+        <p>Панель инструментов содержит кнопки вызова часто используемых пунктов меню:</p>
+        <ul>
+            <li>Создание документа</li>
+            <li>Открытие документа</li>
+            <li>Сохранение текущих изменений в документе</li>
+            <li>Отмена изменений</li>
+            <li>Повтор последнего изменения</li>
+            <li>Копирование текстового фрагмента</li>
+            <li>Вырезать текстовый фрагмент</li>
+            <li>Вставить текстовый фрагмент</li>
+            <li>Запуск лексического анализатора</li>
+            <li>Вызов справки - руководства пользователя</li>
+            <li>Вызов информации о программе</li>
+        </ul>
+        <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+    </section>
+
+    <section id="additional">
+        <h2>Дополнительные возможности текстового редактора</h2>
+        <ol>
+            <li>Интерфейс позволяет работать с несколькими текстовыми документами одновременно.</li>
+            <li>Нумерация строк в окне редактирования.</li>
+        </ol>
+        <div class="back-to-top"><a href="#">↑ Наверх</a></div>
+    </section>
+</body>
+</html>

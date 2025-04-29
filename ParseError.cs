@@ -1,22 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lab1_compile
+﻿namespace Lab1_compile
 {
-    internal class ParseError
+    public class ParseError
     {
         public string Message { get; }
-        public string TokenValue { get; }
-        public int Position { get; }
+        public Token Token { get; }
+
+        public int Position => Token?.Start ?? -1;
+        public int Length => (Token?.Code == -1 && Token?.Value.Length == 1)
+            ? 1
+            : Token?.Value?.Length ?? 1;
 
         public ParseError(string message, Token token)
         {
             Message = message;
-            TokenValue = token?.Value ?? "EOF";
-            Position = token?.Start ?? -1;
+            Token = token;
+        }
+
+        public override string ToString()
+        {
+            return Position >= 0
+                ? $"{Message} (позиция: {Position})"
+                : Message;
         }
     }
 }

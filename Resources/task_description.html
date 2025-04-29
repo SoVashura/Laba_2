@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Постановка задачи</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        h1 { color: #2c3e50; }
+        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; }
+        .example { background: #e8f4f8; padding: 10px; border-left: 3px solid #3498db; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>1. Постановка задачи</h1>
+    <p>Структура – это мощный инструмент языка C, позволяющий создавать собственные составные типы данных. Она объединяет разнородные данные (целые числа, строки, указатели и даже другие структуры) в единую логическую запись, что делает код чище, гибче и удобнее. Объявляется структура с помощью ключевого слова <code>struct</code>.</p>
+    
+    <p>Формат записи:</p>
+    <pre><code>struct название_структуры {
+    тип поле1; 
+    тип поле2; 
+    …;
+};</code></pre>
+    
+    <p>Примеры:</p>
+    <div class="example">
+        <p>1. Обычная структура – с полями:</p>
+        <pre><code>struct str1 {
+    int i; 
+    char c; 
+    float f;
+};</code></pre>
+    </div>
+    
+    <div class="example">
+        <p>2. Пустая структура – без полей:</p>
+        <pre><code>struct str1 {
+};</code></pre>
+    </div>
+    
+    <p>Согласно разработанной автоматной грамматике G[‹Start›] лексический анализатор (сканер) структуры будет считать верными следующие записи:</p>
+    <ul>
+        <li><code>struct Address { char city; char street; int house; };</code></li>
+        <li><code>struct Empty { };</code></li>
+    </ul>
+    
+    <p>Справка (руководство пользователя) представлена в Приложении А. Информация о программе представлена в Приложении Б.</p>
+</body>
+</html>

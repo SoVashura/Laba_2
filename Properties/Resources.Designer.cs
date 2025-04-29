@@ -182,68 +182,26 @@ namespace Lab1_compile.Properties {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;ru&quot;&gt;
-        ///&lt;head&gt;
-        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
-        ///    &lt;title&gt;Справка - руководство по использованию&lt;/title&gt;
-        ///    &lt;style&gt;
-        ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
-        ///        }
-        ///
-        ///        h1, h2, h3 {
-        ///            margin-top: 25px;
-        ///        }
-        ///
-        ///        ul, ol {
-        ///            line-height: 1.6;
-        ///        }
-        ///
-        ///        a {
-        ///            color: #0066cc;
-        ///            text-decoration: none;
-        ///        }
-        ///
-        ///            a:hover {
-        ///                text-de [остаток строки не уместился]&quot;;.
-        /// </summary>
-        internal static string about {
-            get {
-                return ResourceManager.GetString("about", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;ru&quot;&gt;
+        ///&lt;html&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
         ///    &lt;title&gt;Метод анализа&lt;/title&gt;
         ///    &lt;style&gt;
-        ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
-        ///            line-height: 1.6;
-        ///        }
-        ///
-        ///        h1 {
-        ///            font-size: 24px;
-        ///        }
-        ///
-        ///        img {
-        ///            width: 30%;
-        ///            display: block;
-        ///            margin: 20px auto;
-        ///            border: 1px solid #ccc;
-        ///            border-radius: 6px;
-        ///        }
-        ///
-        ///        figcaption [остаток строки не уместился]&quot;;.
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        .image-container { text-align: center; margin: 20px 0; }
+        ///        img { max-width: 100%; border: 1px solid #ddd; }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;4. Метод анализа&lt;/h1&gt;
+        ///    &lt;p&gt;На рисунке 1 представлена диаграмма состояний сканера.&lt;/p&gt;
+        ///    
+        ///    &lt;div class=&quot;image-container [остаток строки не уместился]&quot;;.
         /// </summary>
-        internal static string analysis {
+        internal static string analysis_method {
             get {
-                return ResourceManager.GetString("analysis", resourceCulture);
+                return ResourceManager.GetString("analysis_method", resourceCulture);
             }
         }
         
@@ -262,28 +220,24 @@ namespace Lab1_compile.Properties {
         ///&lt;html lang=&quot;ru&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
-        ///    &lt;title&gt;Классификация грамматики&lt;/title&gt;
+        ///    &lt;title&gt;Исходный код программы - Лексический анализатор структур C&lt;/title&gt;
         ///    &lt;style&gt;
         ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
+        ///            font-family: &apos;Consolas&apos;, &apos;Courier New&apos;, monospace;
         ///            line-height: 1.6;
+        ///            margin: 0;
+        ///            padding: 20px;
+        ///            background-color: #f5f5f5;
+        ///            color: #333;
         ///        }
-        ///
-        ///        h1 {
-        ///            font-size: 22px;
-        ///            margin-bottom: 20px;
-        ///        }
-        ///
-        ///        code {
-        ///            background-color: #f2f2f2;
-        ///            padding: 2px 6px;
-        ///            border-radius: 4px;
-        ///            font-family: Consolas, mo [остаток строки не уместился]&quot;;.
+        ///        .container {
+        ///            max-width: 1200px;
+        ///            margin: 0 auto;
+        ///            background: wh [остаток строки не уместился]&quot;;.
         /// </summary>
-        internal static string classification {
+        internal static string code {
             get {
-                return ResourceManager.GetString("classification", resourceCulture);
+                return ResourceManager.GetString("code", resourceCulture);
             }
         }
         
@@ -300,42 +254,20 @@ namespace Lab1_compile.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Directory {
+        internal static System.Drawing.Bitmap diagram {
             get {
-                object obj = ResourceManager.GetObject("Directory", resourceCulture);
+                object obj = ResourceManager.GetObject("diagram", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;ru&quot;&gt;
-        ///&lt;head&gt;
-        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
-        ///    &lt;title&gt;Диагностика и нейтрализация ошибок&lt;/title&gt;
-        ///    &lt;style&gt;
-        ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
-        ///            line-height: 1.7;
-        ///        }
-        ///
-        ///        h1, h2 {
-        ///            margin-top: 25px;
-        ///        }
-        ///
-        ///        ol {
-        ///            margin-left: 20px;
-        ///        }
-        ///
-        ///        code {
-        ///            background-color: #f2f2f2;
-        ///            padding: 2px 6px;
-        ///            border-radius: 4px [остаток строки не уместился]&quot;;.
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static string errors {
+        internal static System.Drawing.Bitmap Directory {
             get {
-                return ResourceManager.GetString("errors", resourceCulture);
+                object obj = ResourceManager.GetObject("Directory", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -351,34 +283,85 @@ namespace Lab1_compile.Properties {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///    &lt;title&gt;Классификация грамматики&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        .classification { background: #f0f7ff; padding: 15px; border-radius: 5px; }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;3. Классификация грамматики&lt;/h1&gt;
+        ///    &lt;div class=&quot;classification&quot;&gt;
+        ///        &lt;p&gt;Согласно классификации Хомского, грамматика G[‹Start›] является автоматной.&lt; [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string grammar_classification {
+            get {
+                return ResourceManager.GetString("grammar_classification", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///    &lt;title&gt;Разработка грамматики&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        .grammar { background: #f9f9f9; padding: 15px; border: 1px solid #ddd; margin: 10px 0; }
+        ///        .production { margin: 5px 0; }
+        ///        .terminals { font-weight: bold; }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;2. Разработка грамматики&lt;/h1&gt;
+        ///    &lt;p&gt;Определим грамматику объ [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string grammar_development {
+            get {
+                return ResourceManager.GetString("grammar_development", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap graph {
+            get {
+                object obj = ResourceManager.GetObject("graph", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
         ///&lt;html lang=&quot;ru&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
-        ///    &lt;title&gt;Грамматика комплексных чисел&lt;/title&gt;
+        ///    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+        ///    &lt;title&gt;Справка - Лексический анализатор&lt;/title&gt;
         ///    &lt;style&gt;
         ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
-        ///            line-height: 1.7;
+        ///            font-family: &quot;Times New Roman&quot;, Times, serif;
+        ///            line-height: 1.6;
+        ///            margin: 0;
+        ///            padding: 20px;
+        ///            color: #333;
         ///        }
-        ///
+        ///        h1, h2, h3 {
+        ///            color: #2c3e50;
+        ///        }
         ///        h1 {
-        ///            font-size: 24px;
-        ///            margin-bottom: 15px;
-        ///        }
-        ///
-        ///        h2 {
-        ///            margin-top: 30px;
-        ///        }
-        ///
-        ///        pre {
-        ///            background-color: #f8f8f8;
-        ///            padding: 15px;
-        ///             [остаток строки не уместился]&quot;;.
+        ///            border-bottom: 2 [остаток строки не уместился]&quot;;.
         /// </summary>
-        internal static string grammar {
+        internal static string help {
             get {
-                return ResourceManager.GetString("grammar", resourceCulture);
+                return ResourceManager.GetString("help", resourceCulture);
             }
         }
         
@@ -433,6 +416,30 @@ namespace Lab1_compile.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///    &lt;title&gt;Список использованных источников&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        .references { list-style-type: decimal; }
+        ///        .reference { margin-bottom: 10px; }
+        ///        .url { color: #3498db; text-decoration: none; }
+        ///        .url:hover { text-decoration: underline; }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;6. Список использованных ис [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string references {
+            get {
+                return ResourceManager.GetString("references", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap save {
@@ -464,31 +471,105 @@ namespace Lab1_compile.Properties {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
-        ///&lt;html lang=&quot;ru&quot;&gt;
+        ///&lt;html&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
-        ///    &lt;title&gt;Постановка задачи — Комплексные числа&lt;/title&gt;
+        ///    &lt;title&gt;Постановка задачи&lt;/title&gt;
         ///    &lt;style&gt;
-        ///        body {
-        ///            font-family: Segoe UI, sans-serif;
-        ///            margin: 30px;
-        ///            line-height: 1.6;
-        ///        }
-        ///
-        ///        h1 {
-        ///            font-size: 24px;
-        ///            margin-bottom: 20px;
-        ///        }
-        ///
-        ///        code {
-        ///            background-color: #f2f2f2;
-        ///            padding: 2px 6px;
-        ///            border-radius: 4px;
-        ///            font-family: [остаток строки не уместился]&quot;;.
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        code { background: #f4f4f4; padding: 2px 5px; border-radius: 3px; }
+        ///        .example { background: #e8f4f8; padding: 10px; border-left: 3px solid #3498db; margin: 10px 0; }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;h1&gt;1. Постановка задачи&lt;/h1&gt;
+        ///    &lt;p&gt;Структура – это мощный инструм [остаток строки не уместился]&quot;;.
         /// </summary>
-        internal static string task {
+        internal static string task_description {
             get {
-                return ResourceManager.GetString("task", resourceCulture);
+                return ResourceManager.GetString("task_description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;UTF-8&quot;&gt;
+        ///    &lt;title&gt;Тестовые примеры&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
+        ///        h1 { color: #2c3e50; }
+        ///        .example-container { margin: 20px 0; }
+        ///        .example { background: #f5f5f5; padding: 15px; border-left: 4px solid #3498db; margin-bottom: 15px; }
+        ///        .image-container { text-align: center; margin: 10px 0; }
+        ///        img { max-width: 100%; border: 1px solid #ddd; }
+        ///     [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string test_examples {
+            get {
+                return ResourceManager.GetString("test_examples", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test1 {
+            get {
+                object obj = ResourceManager.GetObject("test1", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test2 {
+            get {
+                object obj = ResourceManager.GetObject("test2", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test3 {
+            get {
+                object obj = ResourceManager.GetObject("test3", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test4 {
+            get {
+                object obj = ResourceManager.GetObject("test4", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test5 {
+            get {
+                object obj = ResourceManager.GetObject("test5", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap test6 {
+            get {
+                object obj = ResourceManager.GetObject("test6", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
