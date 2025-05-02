@@ -3,262 +3,219 @@ using System.Collections.Generic;
 
 namespace Lab1_compile
 {
-    internal class Lexer
+    public class Lexer
     {
         private string _input;
         private int _position;
         private List<ParseError> _errors;
-        private bool _hasCriticalError = false;
-        private const int STATE_START = 0;
-        private const int STATE_AFTER_STRUCT = 1;
-        private const int STATE_AFTER_NAME = 2;
-        private const int STATE_IN_STRUCT_BODY = 3;
-        private const int STATE_EXPECT_NAME = 4;
-        private const int STATE_EXPECT_SEMICOLON = 5;
-        private const int STATE_EXPECT_STRUCT_END = 6;
-
-        private int _currentState = STATE_START;
-        private int _lastSpacePosition = -1;
+        private Stack<int> _bracketStack;
 
         public Lexer(string input)
         {
             _input = input;
             _position = 0;
             _errors = new List<ParseError>();
-        }
-
-        private bool IsRussianLetter(char c)
-        {
-            return (c >= 'а' && c <= 'я') || (c >= 'А' && c <= 'Я') || c == 'ё' || c == 'Ё';
-        }
-
-        private void AddError(string message, string symbol, int position)
-        {
-            _errors.Add(new ParseError(message,
-                new Token(-1, "Ошибка", symbol, position, position + symbol.Length - 1)));
+            _bracketStack = new Stack<int>();
         }
 
         public List<Token> Tokenize()
         {
             List<Token> tokens = new List<Token>();
 
-            while (_position < _input.Length && !_hasCriticalError)
+            while (_position < _input.Length)
             {
-                char current = _input[_position];
+                char currentChar = _input[_position];
 
-                // Обработка пробелов
-                if (char.IsWhiteSpace(current))
+                if (char.IsWhiteSpace(currentChar))
                 {
-                    if (_position > 0 && IsLetterOrDigitOrUnderscore(_input[_position - 1]) &&
-                        _position < _input.Length - 1 && IsLetterOrDigitOrUnderscore(_input[_position + 1]))
-                    {
-                        tokens.Add(new Token(12, "Пробел", " ", _position, _position));
-                    }
                     _position++;
                     continue;
                 }
 
-                // Проверка на недопустимые символы
-                if (!IsAllowedCharacter(current))
+                if (char.IsDigit(currentChar) || (currentChar == '-' && IsUnaryMinus(tokens)))
                 {
-                    AddErrorAndStop("Недопустимый символ", current.ToString(), _position);
-                    break;
+                    var numberToken = ExtractNumber();
+                    if (numberToken != null)
+                        tokens.Add(numberToken);
+                    continue;
                 }
 
-                // Начальное состояние
-                if (_currentState == STATE_START)
+                if (currentChar == '+')
                 {
-                    if (current == 's' && LookAhead("struct"))
-                    {
-                        tokens.Add(ProcessKeyword("struct", 7));
-                        _currentState = STATE_AFTER_STRUCT;
-                        continue;
-                    }
-                    AddErrorAndStop("Ожидается ключевое слово 'struct'", current.ToString(), _position);
-                    break;
+                    tokens.Add(new Token(4, "Оператор", "+", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // После struct
-                if (_currentState == STATE_AFTER_STRUCT)
+                if (currentChar == '-')
                 {
-                    if (char.IsLetter(current))
-                    {
-                        tokens.Add(ProcessName());
-                        _currentState = STATE_AFTER_NAME;
-                        continue;
-                    }
-                    AddErrorAndStop("Ожидается имя структуры", current.ToString(), _position);
-                    break;
+                    tokens.Add(new Token(4, "Оператор", "-", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // После имени структуры
-                if (_currentState == STATE_AFTER_NAME)
+                if (currentChar == '*')
                 {
-                    if (current == '{')
-                    {
-                        tokens.Add(new Token(9, "Открывающая скобка", "{", _position, _position));
-                        _position++;
-                        _currentState = STATE_IN_STRUCT_BODY;
-                        continue;
-                    }
-                    AddErrorAndStop("Ожидается '{' после имени структуры", current.ToString(), _position);
-                    break;
+                    tokens.Add(new Token(4, "Оператор", "*", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // Внутри тела структуры
-                if (_currentState == STATE_IN_STRUCT_BODY)
+                if (currentChar == '/')
                 {
-                    if (IsTypeKeyword(current))
-                    {
-                        tokens.Add(ProcessTypeKeyword());
-                        _currentState = STATE_EXPECT_NAME;
-                        continue;
-                    }
-
-                    if (current == '}')
-                    {
-                        tokens.Add(new Token(10, "Закрывающая скобка", "}", _position, _position));
-                        _position++;
-                        _currentState = STATE_EXPECT_STRUCT_END;
-                        continue;
-                    }
-
-                    AddErrorAndStop("Ожидается тип поля или '}'", current.ToString(), _position);
-                    break;
+                    tokens.Add(new Token(4, "Оператор", "/", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // Ожидается имя поля
-                if (_currentState == STATE_EXPECT_NAME)
+                if (currentChar == '(')
                 {
-                    if (char.IsLetter(current))
-                    {
-                        tokens.Add(ProcessName());
-                        _currentState = STATE_EXPECT_SEMICOLON;
-                        continue;
-                    }
-                    AddErrorAndStop("Ожидается имя поля", current.ToString(), _position);
-                    break;
+                    _bracketStack.Push(_position);
+                    tokens.Add(new Token(5, "Скобка", "(", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // Ожидается точка с запятой
-                if (_currentState == STATE_EXPECT_SEMICOLON)
+                if (currentChar == ')')
                 {
-                    if (current == ';')
+                    if (_bracketStack.Count == 0)
                     {
-                        tokens.Add(new Token(11, "Точка с запятой", ";", _position, _position));
-                        _position++;
-                        _currentState = STATE_IN_STRUCT_BODY;
-                        continue;
+                        _errors.Add(new ParseError(
+                            "Закрывающая скобка без соответствующей открывающей",
+                            new Token(-1, "Ошибка", ")", _position, _position))
+                        );
                     }
-                    AddErrorAndStop("Ожидается ';' после имени поля", current.ToString(), _position);
-                    break;
+                    else
+                    {
+                        _bracketStack.Pop();
+                    }
+                    tokens.Add(new Token(6, "Скобка", ")", _position, _position));
+                    _position++;
+                    continue;
                 }
 
-                // Ожидается завершение структуры
-                if (_currentState == STATE_EXPECT_STRUCT_END)
-                {
-                    if (current == ';')
-                    {
-                        tokens.Add(new Token(11, "Точка с запятой", ";", _position, _position));
-                        _position++;
-                        return tokens;
-                    }
-                    AddErrorAndStop("Ожидается ';' после закрывающей скобки", current.ToString(), _position);
-                    break;
-                }
+                _errors.Add(new ParseError(
+                    $"Недопустимый символ '{currentChar}' в позиции {_position}",
+                    new Token(-1, "Ошибка", currentChar.ToString(), _position, _position))
+                );
+                _position++;
             }
 
-            // Финальные проверки
-            if (!_hasCriticalError)
+            // Проверка оставшихся незакрытых скобок
+            while (_bracketStack.Count > 0)
             {
-                if (_currentState == STATE_IN_STRUCT_BODY)
-                {
-                    AddErrorAndStop("Отсутствует '}' в конце структуры", "", _position);
-                }
-                else if (_currentState != STATE_EXPECT_STRUCT_END)
-                {
-                    AddErrorAndStop("Незавершенное определение структуры", "", _position);
-                }
+                int pos = _bracketStack.Pop();
+                _errors.Add(new ParseError(
+                    "Отсутствует закрывающая скобка",
+                    new Token(-1, "Ошибка", "(", pos, pos))
+                );
             }
 
+            CheckForMissingOperators(tokens);
             return tokens;
         }
 
-        private bool IsAllowedCharacter(char c)
-        {
-            return c <= 127 || c == '_';
-        }
-
-        private bool LookAhead(string expected)
-        {
-            if (_position + expected.Length > _input.Length)
-                return false;
-
-            for (int i = 0; i < expected.Length; i++)
-            {
-                if (_input[_position + i] != expected[i])
-                    return false;
-            }
-            return true;
-        }
-
-        private Token ProcessKeyword(string keyword, int code)
-        {
-            var token = new Token(code, "Ключевое слово", keyword, _position, _position + keyword.Length - 1);
-            _position += keyword.Length;
-            return token;
-        }
-
-        private Token ProcessName()
+        private Token ExtractNumber()
         {
             int start = _position;
-            while (_position < _input.Length && IsLetterOrDigitOrUnderscore(_input[_position]))
+            bool hasDecimal = false;
+            bool isNegative = false;
+
+            if (_input[_position] == '-')
+            {
+                isNegative = true;
+                _position++;
+
+                if (_position < _input.Length && char.IsWhiteSpace(_input[_position]))
+                {
+                    _errors.Add(new ParseError(
+                        "Пробел после унарного минуса",
+                        new Token(-1, "Ошибка", "-", start, _position))
+                    );
+                    return null;
+                }
+            }
+
+            while (_position < _input.Length && char.IsDigit(_input[_position]))
             {
                 _position++;
             }
-            return new Token(1, "Идентификатор", _input.Substring(start, _position - start), start, _position - 1);
-        }
 
-        private Token ProcessTypeKeyword()
-        {
-            int start = _position;
-            while (_position < _input.Length && char.IsLetter(_input[_position]))
+            if (_position < _input.Length && _input[_position] == '.')
             {
+                if (hasDecimal)
+                {
+                    _errors.Add(new ParseError(
+                        "Несколько точек в числе",
+                        new Token(-1, "Ошибка", _input.Substring(start, _position - start), start, _position - 1)
+                    ));
+                    return null;
+                }
+
+                hasDecimal = true;
                 _position++;
+
+                if (_position >= _input.Length || !char.IsDigit(_input[_position]))
+                {
+                    _errors.Add(new ParseError(
+                        "Отсутствует дробная часть после точки",
+                        new Token(-1, "Ошибка", _input.Substring(start, _position - start), start, _position - 1)
+                    ));
+                    return null;
+                }
+
+                while (_position < _input.Length && char.IsDigit(_input[_position]))
+                {
+                    _position++;
+                }
             }
-            string type = _input.Substring(start, _position - start);
 
-            int code = -1;
-            if (type == "int") code = 2;
-            else if (type == "float") code = 3;
-            else if (type == "string") code = 4;
-            else if (type == "bool") code = 5;
-            else if (type == "char") code = 6;
-
-            if (code == -1)
+            if (_position < _input.Length && !IsValidNumberEnd(_input[_position]))
             {
-                AddErrorAndStop($"Неизвестный тип '{type}'", type, start);
-                return new Token(-1, "Ошибка", type, start, _position - 1);
+                _errors.Add(new ParseError(
+                    "Некорректный символ в числе",
+                    new Token(-1, "Ошибка", _input.Substring(start, _position - start + 1), start, _position)
+                ));
+                return null;
             }
 
-            return new Token(code, "Ключевое слово", type, start, _position - 1);
+            string value = _input.Substring(start, _position - start);
+            return new Token(
+                hasDecimal ? 9 : 8,
+                hasDecimal ? "Вещественное число" : "Целое число",
+                value,
+                start,
+                _position - 1
+            );
         }
 
-        private bool IsTypeKeyword(char c)
+        private void CheckForMissingOperators(List<Token> tokens)
         {
-            return c == 'i' || c == 'f' || c == 's' || c == 'b' || c == 'c';
+            for (int i = 1; i < tokens.Count; i++)
+            {
+                if ((tokens[i - 1].Type == 8 || tokens[i - 1].Type == 9) &&
+                    (tokens[i].Type == 8 || tokens[i].Type == 9))
+                {
+                    _errors.Add(new ParseError(
+                        "Отсутствует оператор между числами",
+                        tokens[i]
+                    ));
+                }
+            }
         }
 
-        private bool IsLetterOrDigitOrUnderscore(char c)
+        private bool IsUnaryMinus(List<Token> tokens)
         {
-            return char.IsLetterOrDigit(c) || c == '_';
+            return tokens.Count == 0 ||
+                   tokens[tokens.Count - 1].Type == 5 ||
+                   tokens[tokens.Count - 1].Type == 4;
         }
 
-        private void AddErrorAndStop(string message, string symbol, int position)
+        private bool IsValidNumberEnd(char c)
         {
-            _errors.Add(new ParseError(message,
-                new Token(-1, "Ошибка", symbol, position, position + symbol.Length - 1)));
-            _hasCriticalError = true;
+            return char.IsWhiteSpace(c) ||
+                   c == '+' || c == '-' || c == '*' || c == '/' ||
+                   c == '(' || c == ')';
         }
 
         public List<ParseError> GetErrors()

@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RecursiveDescentParser.cs" />
+    <Compile Include="PolishNotation.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="ParseError.cs" />

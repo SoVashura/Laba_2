@@ -1,20 +1,31 @@
-﻿namespace Lab1_compile
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Lab1_compile
 {
     public class Token
     {
-        public int Code { get; set; }
-        public string Type { get; set; }
-        public string Value { get; set; }
-        public int Start { get; set; }
-        public int End { get; set; }
+        public int Type { get; }
+        public string Description { get; }
+        public string Value { get; }
+        public int StartPosition { get; }
+        public int EndPosition { get; }
 
-        public Token(int code, string type, string value, int start, int end)
+        public Token(int type, string description, string value, int startPosition, int endPosition)
         {
-            Code = code;
             Type = type;
+            Description = description;
             Value = value;
-            Start = start;
-            End = end;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
+        }
+
+        public override string ToString()
+        {
+            return $"{Description} '{Value}' (позиции {StartPosition}-{EndPosition})";
         }
     }
 }
