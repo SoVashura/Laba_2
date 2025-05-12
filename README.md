@@ -23,11 +23,11 @@ struct str1 {
 ## Примеры допустимых строк
 
 1. Обычная структура с полями:
-   ```c
-   struct str1 {
+```c
+struct str1 {
     int i;
     char c;
     float f;
-   };
-   ```
+};
+```
   
