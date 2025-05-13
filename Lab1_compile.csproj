@@ -46,6 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MatchResult.cs" />
+    <Compile Include="RegexSearcher.cs" />
     <Compile Include="RecursiveDescentParser.cs" />
     <Compile Include="PolishNotation.cs" />
     <Compile Include="Parser.cs" />
