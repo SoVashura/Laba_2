@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Lab1_compile;
 
 namespace Lab1_compile
 {
@@ -29,7 +30,6 @@ namespace Lab1_compile
         public Form1()
         {
             InitializeComponent();
-            CreateCompactRegexToolbar();
             пускToolStripMenuItem.Click += пускToolStripMenuItem_Click;
             вызовСправкиToolStripMenuItem.Click += вызовСправкиToolStripMenuItem_Click;
             постановкаToolStripMenuItem.Click += постановкаToolStripMenuItem_Click;
@@ -53,140 +53,6 @@ namespace Lab1_compile
         }
 
         private ToolStrip toolStrip;
-
-        private void CreateCompactRegexToolbar()
-        {
-            // Создаем панель инструментов
-            toolStrip = new ToolStrip();
-            toolStrip.Dock = DockStyle.None;
-            toolStrip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            toolStrip.AutoSize = true;
-            toolStrip.GripStyle = ToolStripGripStyle.Hidden;
-            toolStrip.RenderMode = ToolStripRenderMode.System;
-            toolStrip.BackColor = SystemColors.Control;
-            toolStrip.Padding = new Padding(2);
-            toolStrip.Location = new Point(this.ClientSize.Width - 250, 5);
-
-            // 1. Кнопка для слов без t/T
-            ToolStripButton btnWords = new ToolStripButton();
-            btnWords.Text = "Слова";
-            btnWords.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            btnWords.Tag = "words";
-            btnWords.ToolTipText = "Найти слова, не оканчивающиеся на t/T";
-            btnWords.AutoSize = false;
-            btnWords.Width = 80;
-            btnWords.Height = 25;
-            btnWords.Margin = new Padding(1);
-            btnWords.Padding = new Padding(2);
-            btnWords.TextAlign = ContentAlignment.MiddleCenter;
-            btnWords.Click += new EventHandler(RegexButton_Click);
-
-            // 2. Кнопка для паролей
-            ToolStripButton btnPasswords = new ToolStripButton();
-            btnPasswords.Text = "Пароли";
-            btnPasswords.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            btnPasswords.Tag = "passwords";
-            btnPasswords.ToolTipText = "Найти базовые пароли";
-            btnPasswords.AutoSize = false;
-            btnPasswords.Width = 80;
-            btnPasswords.Height = 25;
-            btnPasswords.Margin = new Padding(1);
-            btnPasswords.Padding = new Padding(2);
-            btnPasswords.TextAlign = ContentAlignment.MiddleCenter;
-            btnPasswords.Click += new EventHandler(RegexButton_Click);
-
-            // 3. Кнопка для надежных паролей
-            ToolStripButton btnStrongPass = new ToolStripButton();
-            btnStrongPass.Text = "Сложные";
-            btnStrongPass.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            btnStrongPass.Tag = "strongpass";
-            btnStrongPass.ToolTipText = "Найти надежные пароли";
-            btnStrongPass.AutoSize = false;
-            btnStrongPass.Width = 80;
-            btnStrongPass.Height = 25;
-            btnStrongPass.Margin = new Padding(1);
-            btnStrongPass.Padding = new Padding(2);
-            btnStrongPass.TextAlign = ContentAlignment.MiddleCenter;
-            btnStrongPass.Click += new EventHandler(RegexButton_Click);
-
-            // Добавляем кнопки на панель
-            toolStrip.Items.Add(btnWords);
-            toolStrip.Items.Add(btnPasswords);
-            toolStrip.Items.Add(btnStrongPass);
-
-            // Добавляем панель на форму
-            this.Controls.Add(toolStrip);
-            toolStrip.BringToFront();
-
-            // Обработчик изменения размера формы
-            this.ClientSizeChanged += new EventHandler(MainForm_ClientSizeChanged);
-        }
-
-        private void MainForm_ClientSizeChanged(object sender, EventArgs e)
-        {
-            toolStrip.Left = this.ClientSize.Width - toolStrip.Width - 5;
-        }
-
-        private void RegexButton_Click(object sender, EventArgs e)
-        {
-            ToolStripButton btn = sender as ToolStripButton;
-            if (btn == null) return;
-
-            if (btn.Tag.ToString() == "words")
-            {
-                ExecuteSearch(RegexSearcher.FindWordsNotEndingWithT, "Слова без t/T");
-            }
-            else if (btn.Tag.ToString() == "passwords")
-            {
-                ExecuteSearch(RegexSearcher.FindPasswords, "Базовые пароли");
-            }
-            else if (btn.Tag.ToString() == "strongpass")
-            {
-                ExecuteSearch(RegexSearcher.FindStrongPasswords, "Надежные пароли");
-            }
-        }
-
-        private void ExecuteSearch(Func<string, List<MatchResult>> searchFunc, string searchTitle)
-        {
-            if (tabControl1.SelectedTab is EditorTab tab)
-            {
-                SplitContainer panel = tab.Controls[0] as SplitContainer;
-                RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
-                DataGridView resultsGrid = panel.Panel2.Controls[0] as DataGridView;
-
-                // Очистка предыдущих результатов
-                resultsGrid.Rows.Clear();
-                resultsGrid.Columns.Clear();
-
-                // Настройка столбцов
-                resultsGrid.Columns.Add("Position", "Позиция");
-                resultsGrid.Columns.Add("Length", "Длина");
-                resultsGrid.Columns.Add("Value", "Значение");
-
-                // Выполнение поиска
-                List<MatchResult> results = searchFunc(editor.Text);
-
-                // Вывод результатов
-                foreach (MatchResult result in results)
-                {
-                    resultsGrid.Rows.Add(result.Position, result.Length, result.Value);
-
-                    // Подсветка в тексте
-                    editor.Select(result.Position, result.Length);
-                    editor.SelectionBackColor = Color.LightYellow;
-                }
-
-                // Итоговая строка
-                resultsGrid.Rows.Add("", "", $"Найдено: {results.Count}");
-
-                // Сброс выделения
-                editor.SelectionStart = 0;
-                editor.SelectionLength = 0;
-
-                // Обновляем заголовок вкладки
-                tab.Text = Path.GetFileName(tab.FilePath) + " - " + searchTitle;
-            }
-        }
 
         // Создать файл
         private void button1_Click(object sender, EventArgs e)
@@ -549,8 +415,8 @@ namespace Lab1_compile
             int selectionStart = editor.SelectionStart;
             int selectionLength = editor.SelectionLength;
 
-            string[] keywords = { "int", "float", "double", "string", "char", "struct" };
-            string[] operators = { "{", "}" };
+            string[] keywords = { "if", "IF", "then", "THEN" };
+            string[] operators = { "+", "*", "(", ")", ">", "<", "==", ">=", "<="};
 
             editor.SuspendLayout();
             int cursorPosition = editor.SelectionStart;
@@ -924,270 +790,261 @@ namespace Lab1_compile
                     MessageBox.Show($"Ошибка открытия: {ex.Message}");
                 }
         }
-        /*private void ParseCurrentFile()
+
+        private void button9_Click(object sender, EventArgs e)
         {
             if (tabControl1.SelectedTab is EditorTab tab)
             {
-                var panel = tab.Controls[0] as SplitContainer;
-                var editor = panel.Panel1.Controls[0] as RichTextBox;
-                var tokenTable = panel.Panel2.Controls[0] as DataGridView;
+                SplitContainer panel = tab.Controls[0] as SplitContainer;
+                RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
+                DataGridView tokenTable = panel.Panel2.Controls[0] as DataGridView;
 
-                // Очистка предыдущих результатов
+                // Очистка
                 tokenTable.Rows.Clear();
+                tokenTable.Columns.Clear();
                 ClearErrorHighlights(editor);
+
+                // Настройка таблицы
+                tokenTable.Columns.Add("Level", "Уровень");
+                tokenTable.Columns.Add("Type", "Тип");
+                tokenTable.Columns.Add("Value", "Значение");
+                tokenTable.Columns.Add("Position", "Позиция");
 
                 // Лексический анализ
                 var lexer = new Lexer(editor.Text);
                 var tokens = lexer.Tokenize();
-                DisplayTokens(tokenTable, tokens);
-
-                // Проверка лексических ошибок
                 var lexErrors = lexer.GetErrors();
-                if (lexErrors.Any())
+
+                // Вывод лексем
+                tokenTable.Rows.Add(-1, "---", "ЛЕКСЕМЫ", "---");
+                foreach (var token in tokens)
                 {
-                    DisplayAllErrors(editor, lexErrors);
+                    tokenTable.Rows.Add(0, GetTokenTypeName(token.Type), token.Value, token.Position);
+                }
+
+                // Лексические ошибки
+                if (lexErrors.Count > 0)
+                {
+                    DisplayLexicalErrors(editor, lexErrors);
+                    tokenTable.Rows.Add(-1, "---", "СИНТАКСИЧЕСКИЙ АНАЛИЗ ПРЕРВАН", "---");
                     return;
                 }
 
                 // Синтаксический анализ
                 var parser = new Parser(tokens);
-                bool isValid = parser.Parse();
+                parser.Parse(); // Получаем дерево в любом случае
 
-                // Отображение ВСЕХ ошибок
-                if (parser.Errors.Any())
+                // Вывод дерева
+                tokenTable.Rows.Add(-1, "---", "СИНТАКСИЧЕСКОЕ ДЕРЕВО", "---");
+
+                if (parser.HasErrors)
                 {
-                    DisplayAllErrors(editor, parser.Errors);
+                    tokenTable.Rows.Add(0, "ОШИБКА", parser.FirstError.Message, parser.FirstError.Position);
                 }
                 else
                 {
-                    MessageBox.Show("Синтаксис корректен!", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    PrintParseTree(parser.ParseTree, tokenTable, 0);
                 }
+
+                // Ошибки синтаксиса
+                if (parser.HasErrors)
+                {
+                    foreach (var error in parser.Errors)
+                    {
+                        tokenTable.Rows.Add(0, "ОШИБКА", error.Message, error.Position);
+
+                        // Подсветка
+                        if (error.Position >= 0 && error.Position < editor.TextLength)
+                        {
+                            int start = error.Position;
+                            int length = Math.Max(1, tokens.FirstOrDefault(t => t.Position == error.Position)?.Value.Length ?? 1);
+                            editor.Select(start, length);
+                            editor.SelectionBackColor = Color.Pink;
+                        }
+                    }
+                }
+                // Авторазмер столбцов
+                tokenTable.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             }
-        }*/
-
-        //private void DisplayAllErrors(RichTextBox editor, List<ParseError> errors)
-        //{
-        //    // Очищаем предыдущие подсветки
-        //    editor.SelectAll();
-        //    editor.SelectionBackColor = editor.BackColor;
-        //    editor.SelectionLength = 0;
-
-        //    var errorText = new StringBuilder();
-        //    errorText.AppendLine("Найдены ошибки:");
-        //    errorText.AppendLine();
-
-        //    foreach (var error in errors)
-        //    {
-        //        // Добавляем сообщение об ошибке
-        //        errorText.AppendLine($"• {error.Message}");
-        //        if (error.Position >= 0)
-        //        {
-        //            errorText.AppendLine($"  Позиция: {error.Position}");
-        //        }
-
-        //        // Подсвечиваем ошибку в редакторе
-        //        if (error.Position >= 0 && error.Position < editor.TextLength)
-        //        {
-        //            int length = Math.Max(1, Math.Min(error.Length, editor.TextLength - error.Position));
-        //            editor.Select(error.Position, length);
-        //            editor.SelectionBackColor = Color.Pink;
-        //        }
-        //    }
-
-        //    // Возвращаем курсор в начало
-        //    editor.Select(0, 0);
-        //    editor.ScrollToCaret();
-
-        //    // Показываем все ошибки
-        //    MessageBox.Show(errorText.ToString(),
-        //        $"Найдено {errors.Count} ошибок",
-        //        MessageBoxButtons.OK,
-        //        MessageBoxIcon.Error);
-        //}
-
-
-        //private void DisplayParseError(ParseError error)
-        //{
-        //    string positionInfo = error.Position >= 0 ?
-        //        $" (позиция: {error.Position})" : "";
-
-        //    MessageBox.Show($"{error.Message}{positionInfo}",
-        //        "Ошибка синтаксиса",
-        //        MessageBoxButtons.OK,
-        //        MessageBoxIcon.Error);
-        //}
-        //парсер
-        /*private void button9_Click(object sender, EventArgs e)
-        {
-            ParseCurrentFile();
-            
-        }*/
-
-        private void button9_Click(object sender, EventArgs e)
-        {
-            //if (tabControl1.SelectedTab is EditorTab tab)
-            //{
-            //    SplitContainer panel = tab.Controls[0] as SplitContainer;
-            //    RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
-            //    DataGridView outputGrid = panel.Panel2.Controls[0] as DataGridView;
-            //    ClearErrorHighlights(editor);
-
-            //    // Очищаем таблицу
-            //    outputGrid.Rows.Clear();
-            //    outputGrid.Columns.Clear();
-            //    outputGrid.Columns.Add("Type", "Тип");
-            //    outputGrid.Columns.Add("Value", "Значение");
-            //    outputGrid.Columns.Add("Position", "Позиция");
-            //    outputGrid.Columns.Add("Description", "Описание");
-
-            //    // Лексический анализ
-            //    Lexer lexer = new Lexer(editor.Text);
-            //    List<Token> tokens = lexer.Tokenize();
-            //    List<ParseError> errors = lexer.GetErrors();
-
-            //    // Если есть лексические ошибки — выводим только ошибки
-            //    if (errors.Count > 0)
-            //    {
-            //        foreach (var error in errors)
-            //        {
-            //            outputGrid.Rows.Add(
-            //                "Ошибка",
-            //                error.Token.Value,
-            //                $"{error.Token.StartPosition}-{error.Token.EndPosition}",
-            //                error.Message
-            //            );
-            //        }
-            //        return;
-            //    }
-
-            //    // Синтаксический анализ
-            //    RecursiveDescentParser parser = new RecursiveDescentParser(tokens);
-            //    if (!parser.Parse())
-            //    {
-            //        foreach (var error in parser.GetErrors())
-            //        {
-            //            outputGrid.Rows.Add(
-            //                "Ошибка",
-            //                error.Token.Value,
-            //                $"{error.Token.StartPosition}-{error.Token.EndPosition}",
-            //                error.Message
-            //            );
-            //        }
-            //        return;
-            //    }
-
-            //    // Если ошибок нет — выводим токены и ПОЛИЗ
-            //    foreach (var token in tokens)
-            //    {
-            //        outputGrid.Rows.Add(
-            //            token.Type,
-            //            token.Value,
-            //            $"{token.StartPosition}-{token.EndPosition}",
-            //            token.Description
-            //        );
-            //    }
-            //    PolishNotation polish = new PolishNotation();
-            //    List<string> polishNotation = polish.ConvertToPolishNotation(tokens);
-            //    outputGrid.Rows.Add(-2, "---", "---", "Польская инверсная запись (ПОЛИЗ)");
-            //    string polizString = string.Join(" ", polishNotation);
-            //    outputGrid.Rows.Add(-2, polizString, "---", "Результат преобразования");
-            //    try
-            //    {
-            //        double result = polish.EvaluatePolishNotation(polishNotation);
-            //        outputGrid.Rows.Add(-2, result.ToString(), "---", "Результат вычисления");
-            //        // Визуализация шагов
-            //        //var steps = polish.EvaluatePolishNotationWithSteps(polishNotation);
-            //        //var stepsForm = new FormPolishSteps(steps);
-            //        //stepsForm.Show();
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        outputGrid.Rows.Add("Ошибка", "-", "-", $"Ошибка вычисления: {ex.Message}");
-            //    }
-            //}
         }
 
-        //private void DisplayTokens(DataGridView table, List<Token> tokens)
-        //{
-        //    table.Rows.Clear();
-        //    foreach (var token in tokens)
-        //    {
-        //        int rowIdx = table.Rows.Add(
-        //            token.Code,
-        //            token.Type,
-        //            token.Value,
-        //            token.Start,
-        //            token.End
-        //        );
+        private void AddTreeNodesToTable(ParseTreeNode node, DataGridView table, int level)
+        {
+            if (node == null) return;
 
-        //        // Подсветка ошибочных токенов
-        //        if (token.Code == -1)
-        //        {
-        //            table.Rows[rowIdx].DefaultCellStyle.ForeColor = Color.Red;
-        //        }
-        //    }
-        //}
+            string indent = new string(' ', level * 2);
+            string prefix = level > 0 ? "├── " : "";
 
-        //private void DisplayParseErrors(List<ParseError> errors)
-        //{
-        //    if (errors.Count == 0)
-        //    {
-        //        MessageBox.Show("Ошибок нет.", "Результат",
-        //            MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //    else
-        //    {
-        //        MessageBox.Show(errors[0].ToString(), "Ошибка",
-        //            MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //}
+            table.Rows.Add(
+                level,
+                $"{indent}{prefix}{node.NodeType}",
+                node.Value ?? "",
+                node.Position
+            );
 
-        //private void DisplayParsingErrors(RichTextBox editor, List<ParseError> errors)
-        //{
-        //    // Очищаем предыдущие подсветки
-        //    editor.SelectAll();
-        //    editor.SelectionBackColor = editor.BackColor;
-        //    editor.SelectionLength = 0;
+            // Для последнего ребенка используем другой префикс
+            if (node.Children != null && node.Children.Count > 0)
+            {
+                for (int i = 0; i < node.Children.Count; i++)
+                {
+                    var child = node.Children[i];
+                    if (i == node.Children.Count - 1)
+                    {
+                        table.Rows.Add(level + 1, $"{indent}    └── {child.NodeType}", child.Value ?? "", child.Position);
+                        AddTreeNodesToTable(child, table, level + 2);
+                    }
+                    else
+                    {
+                        AddTreeNodesToTable(child, table, level + 1);
+                    }
+                }
+            }
+        }
 
-        //    var errorText = new StringBuilder();
-        //    errorText.AppendLine("Найдены синтаксические ошибки:");
-        //    errorText.AppendLine();
+            private string GetNodeValueForDisplay(ParseTreeNode node)
+        {
+            if (node == null) return "[null]";
+            if (!string.IsNullOrEmpty(node.Value)) return node.Value;
+            if (node.Children?.Count > 0) return $"[{node.NodeType ?? "нет типа"}]";
+            return "[нет значения]";
+        }
 
-        //    foreach (var error in errors)
-        //    {
-        //        // Добавляем сообщение об ошибке
-        //        errorText.AppendLine($"• {error.Message}");
-        //        if (error.Position >= 0)
-        //        {
-        //            errorText.AppendLine($"  Позиция: {error.Position}");
-        //        }
-        //        errorText.AppendLine();
+        private string GetTokenTypeName(TokenType type)
+{
+    switch (type)
+    {
+        case TokenType.IfKeyword: return "Ключевое слово";
+        case TokenType.ThenKeyword: return "Ключевое слово";
+        case TokenType.Identifier: return "Идентификатор";
+        case TokenType.Number: return "Число";
+        case TokenType.Plus: return "Оператор";
+        case TokenType.Multiply: return "Оператор";
+        case TokenType.Equals: return "Оператор сравнения";
+        case TokenType.NotEquals: return "Оператор сравнения";
+        case TokenType.LessThan: return "Оператор сравнения";
+        case TokenType.LessOrEqual: return "Оператор сравнения";
+        case TokenType.GreaterThan: return "Оператор сравнения";
+        case TokenType.GreaterOrEqual: return "Оператор сравнения";
+        case TokenType.LeftParenthesis: return "Скобка";
+        case TokenType.RightParenthesis: return "Скобка";
+        case TokenType.EndOfInput: return "Конец ввода";
+        default: return "Неизвестный";
+    }
+}
 
-        //        // Подсвечиваем ошибку в редакторе (с защитой от выхода за границы)
-        //        if (error.Position >= 0 && error.Position < editor.TextLength)
-        //        {
-        //            // Заменяем Math.Clamp на ручной расчет
-        //            int length = error.Length;
-        //            if (length < 1) length = 1;
-        //            if (error.Position + length > editor.TextLength)
-        //                length = editor.TextLength - error.Position;
+private string GetTokenDescription(TokenType type)
+{
+    switch (type)
+    {
+        case TokenType.IfKeyword: return "Ключевое слово IF";
+        case TokenType.ThenKeyword: return "Ключевое слово THEN";
+        case TokenType.Plus: return "Операция сложения";
+        case TokenType.Multiply: return "Операция умножения";
+        case TokenType.Equals: return "Равно (==)";
+        case TokenType.NotEquals: return "Не равно (!=)";
+        case TokenType.LessThan: return "Меньше (<)";
+        case TokenType.LessOrEqual: return "Меньше или равно (<=)";
+        case TokenType.GreaterThan: return "Больше (>)";
+        case TokenType.GreaterOrEqual: return "Больше или равно (>=)";
+        default: return type.ToString();
+    }
+}
 
-        //            editor.Select(error.Position, length);
-        //            editor.SelectionBackColor = Color.Pink;
-        //        }
-        //    }
+        private void DisplayLexicalErrors(RichTextBox editor, List<ParseError> errors)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Найдены лексические ошибки:");
 
-        //    // Возвращаем курсор в начало
-        //    editor.Select(0, 0);
-        //    editor.ScrollToCaret();
+            foreach (var error in errors)
+            {
+                sb.AppendLine($"- {error.Message} (позиция: {error.Position})");
 
-        //    // Показываем все ошибки
-        //    MessageBox.Show(errorText.ToString(),
-        //        errors.Count == 1 ? "Найдена 1 ошибка" : $"Найдено {errors.Count} ошибок",
-        //        MessageBoxButtons.OK,
-        //        MessageBoxIcon.Error);
-        //}
+                // Подсветка ошибки в тексте
+                if (error.Position >= 0 && error.Position < editor.TextLength)
+                {
+                    editor.Select(error.Position, 1);
+                    editor.SelectionBackColor = Color.Pink;
+                }
+            }
+
+            MessageBox.Show(sb.ToString(), "Ошибки", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void DisplaySyntaxErrors(RichTextBox editor, IReadOnlyList<ParseError> errors)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Найдены синтаксические ошибки:");
+
+            foreach (var error in errors)
+            {
+                sb.AppendLine($"- {error.Message} (позиция: {error.Position})");
+            }
+
+            MessageBox.Show(sb.ToString(), "Ошибки", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void DisplayParseTree(DataGridView table, ParseTreeNode node, int level = 0)
+        {
+            if (node == null || table == null || table.Columns.Count < 4)
+                return;
+
+            if (table.InvokeRequired)
+            {
+                table.Invoke(new Action(() => DisplayParseTree(table, node, level)));
+                return;
+            }
+
+            try
+            {
+                string positionText = node.Position >= 0 ? node.Position.ToString() : "";
+
+                int rowIndex = table.Rows.Add(
+                    Math.Max(0, level),
+                    node.NodeType ?? "Без типа",
+                    node.Value ?? "",
+                    positionText
+                );
+
+                // Настройка внешнего вида строки
+                if (level == 0)
+                {
+                    table.Rows[rowIndex].DefaultCellStyle.BackColor = Color.LightBlue;
+                    table.Rows[rowIndex].DefaultCellStyle.Font = new Font(table.Font, FontStyle.Bold);
+                }
+
+                foreach (var child in node.Children ?? Enumerable.Empty<ParseTreeNode>())
+                {
+                    if (child != null)
+                    {
+                        DisplayParseTree(table, child, level + 1);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Parse tree display error: {ex.Message}");
+                // Дополнительная обработка ошибки при необходимости
+            }
+        }
+
+        private void PrintParseTree(ParseTreeNode node, DataGridView table, int level)
+        {
+            if (node == null) return;
+
+            // Добавляем только текущий узел
+            table.Rows.Add(
+                level,
+                node.NodeType,
+                node.Value ?? "",
+                node.Position >= 0 ? node.Position.ToString() : ""
+            );
+
+            // Рекурсивно добавляем детей
+            foreach (var child in node.Children)
+            {
+                PrintParseTree(child, table, level + 1);
+            }
+        }
 
         private void постановкаToolStripMenuItem_Click(object sender, EventArgs e)
         {

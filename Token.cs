@@ -1,31 +1,42 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-//namespace Lab1_compile
-//{
-//    public class Token
-//    {
-//        public int Type { get; }
-//        public string Description { get; }
-//        public string Value { get; }
-//        public int StartPosition { get; }
-//        public int EndPosition { get; }
+namespace Lab1_compile
+{
+        public enum TokenType
+        {
+            IfKeyword,      // IF
+            ThenKeyword,    // THEN
+            Identifier,     // Идентификаторы (a, b, x, y)
+            Number,         // Числа (42, 3.14)
+            Plus,           // +
+            Multiply,       // *
+            Equals,         // ==
+            NotEquals,      // !=
+            LessThan,       // <
+            LessOrEqual,    // <=
+            GreaterThan,    // >
+            GreaterOrEqual, // >=
+            LeftParenthesis, // (
+            RightParenthesis, // )
+            EndOfInput,     // Конец ввода
+            Unknown         // Неизвестный токен
+        }
 
-//        public Token(int type, string description, string value, int startPosition, int endPosition)
-//        {
-//            Type = type;
-//            Description = description;
-//            Value = value;
-//            StartPosition = startPosition;
-//            EndPosition = endPosition;
-//        }
+        public class Token
+        {
+            public TokenType Type { get; }
+            public string Value { get; }
+            public int Position { get; }
 
-//        public override string ToString()
-//        {
-//            return $"{Description} '{Value}' (позиции {StartPosition}-{EndPosition})";
-//        }
-//    }
-//}
+            public Token(TokenType type, string value, int position)
+            {
+                Type = type;
+                Value = value;
+                Position = position;
+            }
+        }
+}
