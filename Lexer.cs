@@ -8,113 +8,61 @@ namespace Lab1_compile
     {
         private readonly string _input;
         private int _position;
-        private List<ParseError> _errors;
+        private readonly List<ParseError> _errors = new List<ParseError>();
 
         public Lexer(string input)
         {
-            _input = input;
+            _input = input ?? string.Empty;
             _position = 0;
-            _errors = new List<ParseError>();
         }
 
         public List<Token> Tokenize()
         {
-            List<Token> tokens = new List<Token>();
+            var tokens = new List<Token>();
+            _errors.Clear();
 
             while (_position < _input.Length)
             {
                 char current = _input[_position];
 
-                // Пропускаем пробелы
                 if (char.IsWhiteSpace(current))
                 {
                     _position++;
                     continue;
                 }
 
-                // Ключевые слова
+                if (TryMatchKeyword("IF", TokenType.IfKeyword, ref tokens) ||
+                    TryMatchKeyword("THEN", TokenType.ThenKeyword, ref tokens))
+                {
+                    continue;
+                }
+
+                if (TryMatchOperator("==", TokenType.Equals, ref tokens) ||
+                    TryMatchOperator("!=", TokenType.NotEquals, ref tokens) ||
+                    TryMatchOperator("<=", TokenType.LessOrEqual, ref tokens) ||
+                    TryMatchOperator(">=", TokenType.GreaterOrEqual, ref tokens) ||
+                    TryMatchOperator("<", TokenType.LessThan, ref tokens) ||
+                    TryMatchOperator(">", TokenType.GreaterThan, ref tokens) ||
+                    TryMatchOperator("+", TokenType.Plus, ref tokens) ||
+                    TryMatchOperator("*", TokenType.Multiply, ref tokens) ||
+                    TryMatchOperator("(", TokenType.LeftParenthesis, ref tokens) ||
+                    TryMatchOperator(")", TokenType.RightParenthesis, ref tokens))
+                {
+                    continue;
+                }
+
                 if (char.IsLetter(current))
                 {
-                    string word = ReadWord();
-                    TokenType type = TokenType.Identifier;
-
-                    if (word.Equals("IF", StringComparison.OrdinalIgnoreCase))
-                        type = TokenType.IfKeyword;
-                    else if (word.Equals("THEN", StringComparison.OrdinalIgnoreCase))
-                        type = TokenType.ThenKeyword;
-
-                    tokens.Add(new Token(type, word, _position - word.Length));
+                    tokens.Add(ReadIdentifier());
                     continue;
                 }
 
-                // Числа
                 if (char.IsDigit(current))
                 {
-                    string num = ReadNumber();
-                    tokens.Add(new Token(TokenType.Number, num, _position - num.Length));
+                    tokens.Add(ReadNumber());
                     continue;
                 }
 
-                // Операторы
-                switch (current)
-                {
-                    case '+':
-                        tokens.Add(new Token(TokenType.Plus, "+", _position));
-                        _position++;
-                        continue;
-                    case '*':
-                        tokens.Add(new Token(TokenType.Multiply, "*", _position));
-                        _position++;
-                        continue;
-                    case '(':
-                        tokens.Add(new Token(TokenType.LeftParenthesis, "(", _position));
-                        _position++;
-                        continue;
-                    case ')':
-                        tokens.Add(new Token(TokenType.RightParenthesis, ")", _position));
-                        _position++;
-                        continue;
-                }
-
-                // Операции сравнения (двухсимвольные)
-                if (_position + 1 < _input.Length)
-                {
-                    string twoCharOp = _input.Substring(_position, 2);
-                    switch (twoCharOp)
-                    {
-                        case "==":
-                            tokens.Add(new Token(TokenType.Equals, "==", _position));
-                            _position += 2;
-                            continue;
-                        case "!=":
-                            tokens.Add(new Token(TokenType.NotEquals, "!=", _position));
-                            _position += 2;
-                            continue;
-                        case "<=":
-                            tokens.Add(new Token(TokenType.LessOrEqual, "<=", _position));
-                            _position += 2;
-                            continue;
-                        case ">=":
-                            tokens.Add(new Token(TokenType.GreaterOrEqual, ">=", _position));
-                            _position += 2;
-                            continue;
-                    }
-                }
-
-                // Односимвольные операции сравнения
-                switch (current)
-                {
-                    case '<':
-                        tokens.Add(new Token(TokenType.LessThan, "<", _position));
-                        _position++;
-                        continue;
-                    case '>':
-                        tokens.Add(new Token(TokenType.GreaterThan, ">", _position));
-                        _position++;
-                        continue;
-                }
-
-                // Неизвестный символ
                 _errors.Add(new ParseError($"Неизвестный символ: '{current}'", _position));
                 _position++;
             }
@@ -123,22 +71,62 @@ namespace Lab1_compile
             return tokens;
         }
 
-        private string ReadWord()
+        public List<ParseError> GetErrors() => _errors;
+
+        private bool TryMatchKeyword(string keyword, TokenType type, ref List<Token> tokens)
         {
-            int start = _position;
-            while (_position < _input.Length && char.IsLetterOrDigit(_input[_position]))
-                _position++;
-            return _input.Substring(start, _position - start);
+            if (_position + keyword.Length > _input.Length)
+                return false;
+
+            string substring = _input.Substring(_position, keyword.Length);
+            if (substring.Equals(keyword, StringComparison.OrdinalIgnoreCase))
+            {
+                tokens.Add(new Token(type, substring, _position));
+                _position += keyword.Length;
+                return true;
+            }
+
+            return false;
         }
 
-        private string ReadNumber()
+        private bool TryMatchOperator(string op, TokenType type, ref List<Token> tokens)
+        {
+            if (_position + op.Length > _input.Length)
+                return false;
+
+            string substring = _input.Substring(_position, op.Length);
+            if (substring == op)
+            {
+                tokens.Add(new Token(type, substring, _position));
+                _position += op.Length;
+                return true;
+            }
+
+            return false;
+        }
+
+        private Token ReadIdentifier()
+        {
+            int start = _position;
+            while (_position < _input.Length && (char.IsLetterOrDigit(_input[_position])))
+            {
+                _position++;
+            }
+
+            string value = _input.Substring(start, _position - start);
+            return new Token(TokenType.Identifier, value, start);
+        }
+
+        private Token ReadNumber()
         {
             int start = _position;
             while (_position < _input.Length && char.IsDigit(_input[_position]))
+            {
                 _position++;
-            return _input.Substring(start, _position - start);
-        }
+            }
 
-        public List<ParseError> GetErrors() => _errors;
+            string value = _input.Substring(start, _position - start);
+            return new Token(TokenType.Number, value, start);
+        }
     }
 }

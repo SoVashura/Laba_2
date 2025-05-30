@@ -1,54 +1,55 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Lab1_compile
 {
-    internal class StatusBarManager
+    public class StatusBarManager
     {
-        private StatusStrip statusStrip;
-        private ToolStripStatusLabel languageLabel;
-        private ToolStripStatusLabel cursorPositionLabel;
-        private Form1 form;
+        private readonly ToolStripStatusLabel _positionLabel;
+        private readonly Form _form;
 
-        public StatusBarManager(Form1 form)
+        public StatusBarManager(Form form)
         {
-            this.form = form;
+            _form = form;
 
-            statusStrip = new StatusStrip();
-
-            languageLabel = new ToolStripStatusLabel { Text = "Язык: " + GetCurrentKeyboardLanguage() };
-            cursorPositionLabel = new ToolStripStatusLabel { Text = "Позиция: 1" };
-
-            statusStrip.Items.Add(languageLabel);
-            statusStrip.Items.Add(cursorPositionLabel);
-
-            form.Controls.Add(statusStrip);
-
-            // Подписка на смену языка клавиатуры
-            form.InputLanguageChanged += Form_InputLanguageChanged;
+            // Создаем StatusStrip, если его нет
+            if (_form.Controls.OfType<StatusStrip>().FirstOrDefault() == null)
+            {
+                var statusStrip = new StatusStrip();
+                _positionLabel = new ToolStripStatusLabel();
+                statusStrip.Items.Add(_positionLabel);
+                _form.Controls.Add(statusStrip);
+            }
+            else
+            {
+                _positionLabel = _form.Controls.OfType<StatusStrip>().First().Items.OfType<ToolStripStatusLabel>().FirstOrDefault();
+                if (_positionLabel == null)
+                {
+                    _positionLabel = new ToolStripStatusLabel();
+                    _form.Controls.OfType<StatusStrip>().First().Items.Add(_positionLabel);
+                }
+            }
         }
 
         public void UpdateCursorPosition(RichTextBox editor)
         {
-            int position = editor.SelectionStart;
-            int lineStart = editor.GetFirstCharIndexOfCurrentLine();
-            int column = position - lineStart + 1; // Считаем с 1
+            if (editor == null)
+            {
+                HideCursorPosition();
+                return;
+            }
 
-            cursorPositionLabel.Text = $"Позиция: {column}";
+            int line = editor.GetLineFromCharIndex(editor.SelectionStart) + 1;
+            int column = editor.SelectionStart - editor.GetFirstCharIndexFromLine(line - 1) + 1;
+
+            _positionLabel.Text = $"Строка: {line}, Колонка: {column}";
+            _positionLabel.Visible = true;
         }
 
-        private void Form_InputLanguageChanged(object sender, InputLanguageChangedEventArgs e)
-        {
-            languageLabel.Text = "Язык: " + GetCurrentKeyboardLanguage();
-        }
-
-        private string GetCurrentKeyboardLanguage()
-        {
-            return InputLanguage.CurrentInputLanguage.Culture.TwoLetterISOLanguageName.ToUpper();
-        }
         public void HideCursorPosition()
         {
-            cursorPositionLabel.Text = "";
+            _positionLabel.Visible = false;
         }
     }
 }

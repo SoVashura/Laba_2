@@ -8,212 +8,245 @@ namespace  Lab1_compile
     public class Parser
     {
         private readonly List<Token> _tokens;
-        private int _currentTokenIndex;
-        private readonly List<ParseError> _errors;
-        private ParseTreeNode _parseTreeRoot;
-        private bool _parsingFailed;
+        private int _currentIndex;
+        private readonly List<ParseError> _errors = new List<ParseError>();
 
-        public ParseTreeNode ParseTree => _errors.Count == 0 ? _parseTreeRoot : null;
-        public IReadOnlyList<ParseError> Errors => _errors.AsReadOnly();
+        public ParseTreeNode ParseTree { get; private set; }
         public bool HasErrors => _errors.Count > 0;
+        public IReadOnlyList<ParseError> Errors => _errors;
+        public ParseError FirstError => _errors.FirstOrDefault();
 
         public Parser(List<Token> tokens)
         {
-            _tokens = tokens ?? throw new ArgumentNullException(nameof(tokens));
-            _errors = new List<ParseError>();
+            _tokens = tokens ?? new List<Token>();
+            _currentIndex = 0;
         }
 
-        public bool Parse()
+        public void Parse()
         {
-            _currentTokenIndex = 0;
             _errors.Clear();
-            _parsingFailed = false;
-            _parseTreeRoot = new ParseTreeNode("Программа");
-
-            ParseConditionalStatement(_parseTreeRoot);
-
-            // Убрали проверку на конец ввода, чтобы дерево выводилось в любом случае
-            return !_parsingFailed && _errors.Count == 0;
+            ParseTree = ParseConditionalStatement();
         }
 
-        private Token CurrentToken => _parsingFailed || _currentTokenIndex >= _tokens.Count
-            ? null
-            : _tokens[_currentTokenIndex];
+        private Token CurrentToken => _currentIndex < _tokens.Count ? _tokens[_currentIndex] : null;
+        private Token NextToken => _currentIndex + 1 < _tokens.Count ? _tokens[_currentIndex + 1] : null;
 
-        private void AddError(string message, int position)
+        private Token Consume(TokenType expectedType, string errorMessage)
         {
-            _errors.Add(new ParseError(message, position));
-            _parsingFailed = true;
+            if (CurrentToken?.Type == expectedType)
+            {
+                var token = CurrentToken;
+                _currentIndex++;
+                return token;
+            }
+
+            _errors.Add(new ParseError(errorMessage, CurrentToken?.Position ?? 0));
+            return null;
         }
 
-        private bool ParseConditionalStatement(ParseTreeNode parentNode)
+        private bool Match(TokenType type) => CurrentToken?.Type == type;
+
+        private ParseTreeNode ParseConditionalStatement()
         {
-            var ifNode = new ParseTreeNode("Условный оператор");
-            parentNode.Children.Add(ifNode);
+            var node = new ParseTreeNode("ConditionalStatement");
+            int startPos = CurrentToken?.Position ?? 0;
 
-            // IF
-            if (CurrentToken?.Type != TokenType.IfKeyword)
+            if (Match(TokenType.IfKeyword))
             {
-                AddError("Ожидалось ключевое слово IF", CurrentToken?.Position ?? 0);
-                return false;
-            }
-            ifNode.Children.Add(new ParseTreeNode("Ключевое слово", "IF", CurrentToken.Position));
-            _currentTokenIndex++;
+                node.AddChild(new ParseTreeNode("Keyword", CurrentToken.Value, CurrentToken.Position));
+                Consume(TokenType.IfKeyword, "Ожидается ключевое слово IF");
 
-            // Условие
-            if (!ParseCondition(ifNode)) return false; // Передаем ifNode вместо создания нового узла
-
-            // THEN
-            if (CurrentToken?.Type != TokenType.ThenKeyword)
-            {
-                AddError("Ожидалось ключевое слово THEN", CurrentToken?.Position ?? 0);
-                return false;
-            }
-            ifNode.Children.Add(new ParseTreeNode("Ключевое слово", "THEN", CurrentToken.Position));
-            _currentTokenIndex++;
-
-            // Оператор
-            if (CurrentToken?.Type == TokenType.IfKeyword)
-            {
-                return ParseConditionalStatement(ifNode);
-            }
-            return ParseExpression(ifNode, true);
-        }
-
-        public ParseError FirstError => _errors.FirstOrDefault();
-
-        private bool ParseCondition(ParseTreeNode parentNode)
-        {
-            if (_parsingFailed) return false;
-
-            var conditionNode = new ParseTreeNode("Условие");
-            parentNode.Children.Add(conditionNode);
-
-            // Левый операнд
-            if (!ParseExpression(conditionNode, false)) return false;
-
-            // Проверка оператора сравнения
-            if (CurrentToken == null || !IsComparisonOperator(CurrentToken.Type))
-            {
-                AddError($"Ожидался оператор сравнения (==, !=, <, <=, >, >=), но получено: {CurrentToken?.Value ?? "конец ввода"}",
-                       CurrentToken?.Position ?? 0);
-                return false;
-            }
-
-            conditionNode.Children.Add(new ParseTreeNode("Оператор сравнения", CurrentToken.Value, CurrentToken.Position));
-            _currentTokenIndex++;
-
-            // Правый операнд
-            return ParseExpression(conditionNode, false);
-        }
-
-        private bool ParseExpression(ParseTreeNode parentNode, bool strictMode)
-        {
-            var exprNode = new ParseTreeNode("Выражение");
-            parentNode.Children.Add(exprNode);
-
-            if (!ParseTerm(exprNode, strictMode)) return false;
-
-            while (CurrentToken != null && (CurrentToken.Type == TokenType.Plus))
-            {
-                exprNode.Children.Add(new ParseTreeNode("Оператор", CurrentToken.Value, CurrentToken.Position));
-                _currentTokenIndex++;
-                if (!ParseTerm(exprNode, strictMode))
+                var condition = ParseCondition();
+                if (condition != null)
                 {
-                    AddError($"Ожидался терм после оператора {CurrentToken?.Value}", CurrentToken?.Position ?? 0);
-                    return false;
+                    node.AddChild(condition);
+
+                    if (Match(TokenType.ThenKeyword))
+                    {
+                        node.AddChild(new ParseTreeNode("Keyword", CurrentToken.Value, CurrentToken.Position));
+                        Consume(TokenType.ThenKeyword, "Ожидается ключевое слово THEN");
+
+                        var statement = ParseStatement();
+                        if (statement != null)
+                        {
+                            node.AddChild(statement);
+                        }
+                    }
+                    else
+                    {
+                        _errors.Add(new ParseError("Ожидается THEN после условия", CurrentToken?.Position ?? startPos));
+                    }
+                }
+            }
+            else
+            {
+                _errors.Add(new ParseError("Ожидается IF в начале условного оператора", startPos));
+            }
+
+            return node;
+        }
+
+        private ParseTreeNode ParseCondition()
+        {
+            var node = new ParseTreeNode("Condition");
+            int startPos = CurrentToken?.Position ?? 0;
+
+            var leftExpr = ParseExpression();
+            if (leftExpr != null)
+            {
+                node.AddChild(leftExpr);
+
+                if (IsRelationalOperator(CurrentToken?.Type))
+                {
+                    var opNode = new ParseTreeNode("Operator", CurrentToken.Value, CurrentToken.Position);
+                    node.AddChild(opNode);
+                    _currentIndex++;
+
+                    var rightExpr = ParseExpression();
+                    if (rightExpr != null)
+                    {
+                        node.AddChild(rightExpr);
+                    }
+                    else
+                    {
+                        _errors.Add(new ParseError("Ожидается выражение после оператора отношения", CurrentToken?.Position ?? startPos));
+                    }
+                }
+                else
+                {
+                    _errors.Add(new ParseError("Ожидается оператор отношения", CurrentToken?.Position ?? startPos));
                 }
             }
 
-            if (strictMode && CurrentToken != null &&
-               (CurrentToken.Type == TokenType.Identifier || CurrentToken.Type == TokenType.Number) &&
-               exprNode.Children.LastOrDefault()?.NodeType == "Терм")
-            {
-                AddError($"Ожидался оператор между операндами", CurrentToken.Position);
-                return false;
-            }
-
-            return true;
+            return node;
         }
 
-        private bool ParseTerm(ParseTreeNode parentNode, bool strictMode)
+        private bool IsRelationalOperator(TokenType? type)
         {
-            var termNode = new ParseTreeNode("Терм");
-            parentNode.Children.Add(termNode);
-
-            if (!ParseFactor(termNode)) return false;
-
-            while (CurrentToken?.Type == TokenType.Multiply)
-            {
-                termNode.Children.Add(new ParseTreeNode("Оператор", "*", CurrentToken.Position));
-                _currentTokenIndex++;
-                if (!ParseFactor(termNode)) return false;
-            }
-
-            return true;
+            return type == TokenType.Equals ||
+                   type == TokenType.NotEquals ||
+                   type == TokenType.LessThan ||
+                   type == TokenType.LessOrEqual ||
+                   type == TokenType.GreaterThan ||
+                   type == TokenType.GreaterOrEqual;
         }
 
-        private bool ParseFactor(ParseTreeNode parentNode)
+        private ParseTreeNode ParseExpression()
         {
-            if (_parsingFailed) return false;
+            var node = new ParseTreeNode("Expression");
+            int startPos = CurrentToken?.Position ?? 0;
 
-            if (CurrentToken == null)
+            var term = ParseTerm();
+            if (term != null)
             {
-                AddError("Ожидался идентификатор или число", 0);
-                return false;
-            }
+                node.AddChild(term);
 
-            switch (CurrentToken.Type)
-            {
-                case TokenType.Identifier:
-                    // Проверка на русские буквы
-                    if (ContainsCyrillic(CurrentToken.Value))
+                while (Match(TokenType.Plus))
+                {
+                    var opNode = new ParseTreeNode("Operator", CurrentToken.Value, CurrentToken.Position);
+                    node.AddChild(opNode);
+                    _currentIndex++;
+
+                    var nextTerm = ParseTerm();
+                    if (nextTerm != null)
                     {
-                        AddError($"Идентификатор содержит русские буквы: {CurrentToken.Value}", CurrentToken.Position);
-                        return false;
+                        node.AddChild(nextTerm);
                     }
-                    parentNode.Children.Add(new ParseTreeNode("Идентификатор", CurrentToken.Value, CurrentToken.Position));
-                    _currentTokenIndex++;
-                    return true;
-
-                case TokenType.Number:
-                    parentNode.Children.Add(new ParseTreeNode("Число", CurrentToken.Value, CurrentToken.Position));
-                    _currentTokenIndex++;
-                    return true;
-
-                case TokenType.LeftParenthesis:
-                    var parenNode = new ParseTreeNode("Скобки");
-                    parentNode.Children.Add(parenNode);
-                    _currentTokenIndex++;
-
-                    if (!ParseExpression(parenNode, false)) return false;
-
-                    if (CurrentToken?.Type != TokenType.RightParenthesis)
+                    else
                     {
-                        AddError("Ожидалась закрывающая скобка", CurrentToken?.Position ?? 0);
-                        return false;
+                        _errors.Add(new ParseError("Ожидается терм после оператора +", CurrentToken?.Position ?? startPos));
                     }
-                    _currentTokenIndex++;
-                    return true;
+                }
+            }
 
-                default:
-                    AddError($"Недопустимый токен: {CurrentToken.Value}", CurrentToken.Position);
-                    return false;
+            return node;
+        }
+
+        private ParseTreeNode ParseTerm()
+        {
+            var node = new ParseTreeNode("Term");
+            int startPos = CurrentToken?.Position ?? 0;
+
+            var factor = ParseFactor();
+            if (factor != null)
+            {
+                node.AddChild(factor);
+
+                while (Match(TokenType.Multiply))
+                {
+                    var opNode = new ParseTreeNode("Operator", CurrentToken.Value, CurrentToken.Position);
+                    node.AddChild(opNode);
+                    _currentIndex++;
+
+                    var nextFactor = ParseFactor();
+                    if (nextFactor != null)
+                    {
+                        node.AddChild(nextFactor);
+                    }
+                    else
+                    {
+                        _errors.Add(new ParseError("Ожидается множитель после оператора *", CurrentToken?.Position ?? startPos));
+                    }
+                }
+            }
+
+            return node;
+        }
+
+        private ParseTreeNode ParseFactor()
+        {
+            if (Match(TokenType.Identifier))
+            {
+                var node = new ParseTreeNode("Identifier", CurrentToken.Value, CurrentToken.Position);
+                _currentIndex++;
+                return node;
+            }
+
+            if (Match(TokenType.Number))
+            {
+                var node = new ParseTreeNode("Number", CurrentToken.Value, CurrentToken.Position);
+                _currentIndex++;
+                return node;
+            }
+
+            if (Match(TokenType.LeftParenthesis))
+            {
+                var node = new ParseTreeNode("Parentheses");
+                node.AddChild(new ParseTreeNode("Symbol", "(", CurrentToken.Position));
+                _currentIndex++;
+
+                var expr = ParseExpression();
+                if (expr != null)
+                {
+                    node.AddChild(expr);
+
+                    if (Match(TokenType.RightParenthesis))
+                    {
+                        node.AddChild(new ParseTreeNode("Symbol", ")", CurrentToken.Position));
+                        _currentIndex++;
+                        return node;
+                    }
+                    else
+                    {
+                        _errors.Add(new ParseError("Ожидается закрывающая скобка", CurrentToken?.Position ?? 0));
+                    }
+                }
+            }
+
+            _errors.Add(new ParseError("Ожидается идентификатор, число или выражение в скобках", CurrentToken?.Position ?? 0));
+            return null;
+        }
+
+        private ParseTreeNode ParseStatement()
+        {
+            if (Match(TokenType.IfKeyword))
+            {
+                return ParseConditionalStatement();
+            }
+            else
+            {
+                return ParseExpression();
             }
         }
-
-        private bool ContainsCyrillic(string value)
-        {
-            return value.Any(c => c >= 'А' && c <= 'я') || value.Contains('Ё') || value.Contains('ё');
-        }
-
-        private static bool IsComparisonOperator(TokenType type)
-        {
-            return type == TokenType.Equals || type == TokenType.NotEquals ||
-                   type == TokenType.LessThan || type == TokenType.LessOrEqual ||
-                   type == TokenType.GreaterThan || type == TokenType.GreaterOrEqual;
-        }
-
-        public ParseTreeNode GetParseTree() => _errors.Count == 0 ? _parseTreeRoot : null;
     }
 }

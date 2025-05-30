@@ -799,16 +799,27 @@ namespace Lab1_compile
                 RichTextBox editor = panel.Panel1.Controls[0] as RichTextBox;
                 DataGridView tokenTable = panel.Panel2.Controls[0] as DataGridView;
 
-                // Очистка
+                // Очистка предыдущих результатов
                 tokenTable.Rows.Clear();
                 tokenTable.Columns.Clear();
                 ClearErrorHighlights(editor);
 
-                // Настройка таблицы
+                // Настройка таблицы для красивого вывода
                 tokenTable.Columns.Add("Level", "Уровень");
-                tokenTable.Columns.Add("Type", "Тип");
+                tokenTable.Columns.Add("NodeType", "Тип узла");
                 tokenTable.Columns.Add("Value", "Значение");
                 tokenTable.Columns.Add("Position", "Позиция");
+
+                // Настройка внешнего вида таблицы
+                tokenTable.BackgroundColor = Color.White;
+                tokenTable.GridColor = Color.LightGray;
+                tokenTable.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+                tokenTable.ColumnHeadersDefaultCellStyle.BackColor = Color.SteelBlue;
+                tokenTable.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+                tokenTable.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+                tokenTable.EnableHeadersVisualStyles = false;
+                tokenTable.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                tokenTable.RowHeadersVisible = false;
 
                 // Лексический анализ
                 var lexer = new Lexer(editor.Text);
@@ -816,56 +827,76 @@ namespace Lab1_compile
                 var lexErrors = lexer.GetErrors();
 
                 // Вывод лексем
-                tokenTable.Rows.Add(-1, "---", "ЛЕКСЕМЫ", "---");
-                foreach (var token in tokens)
+                AddHeaderRow(tokenTable, "ЛЕКСИЧЕСКИЙ АНАЛИЗ", Color.LightGreen);
+                foreach (var token in tokens.Where(t => t.Type != TokenType.EndOfInput))
                 {
-                    tokenTable.Rows.Add(0, GetTokenTypeName(token.Type), token.Value, token.Position);
+                    tokenTable.Rows.Add(
+                        0,
+                        GetTokenTypeName(token.Type),
+                        token.Value,
+                        token.Position
+                    );
                 }
 
                 // Лексические ошибки
                 if (lexErrors.Count > 0)
                 {
-                    DisplayLexicalErrors(editor, lexErrors);
-                    tokenTable.Rows.Add(-1, "---", "СИНТАКСИЧЕСКИЙ АНАЛИЗ ПРЕРВАН", "---");
+                    AddHeaderRow(tokenTable, "ОШИБКИ ЛЕКСИЧЕСКОГО АНАЛИЗА", Color.LightPink);
+                    foreach (var error in lexErrors)
+                    {
+                        tokenTable.Rows.Add(
+                            0,
+                            "Ошибка",
+                            error.Message,
+                            error.Position
+                        );
+                        HighlightError(editor, error.Position);
+                    }
                     return;
                 }
 
                 // Синтаксический анализ
                 var parser = new Parser(tokens);
-                parser.Parse(); // Получаем дерево в любом случае
+                parser.Parse();
 
-                // Вывод дерева
-                tokenTable.Rows.Add(-1, "---", "СИНТАКСИЧЕСКОЕ ДЕРЕВО", "---");
+                // Вывод синтаксического дерева
+                AddHeaderRow(tokenTable, "СИНТАКСИЧЕСКИЙ АНАЛИЗ", Color.LightBlue);
 
                 if (parser.HasErrors)
                 {
-                    tokenTable.Rows.Add(0, "ОШИБКА", parser.FirstError.Message, parser.FirstError.Position);
+                    AddHeaderRow(tokenTable, "ОШИБКИ СИНТАКСИЧЕСКОГО АНАЛИЗА", Color.LightPink);
+                    foreach (var error in parser.Errors)
+                    {
+                        tokenTable.Rows.Add(
+                            0,
+                            "Ошибка",
+                            error.Message,
+                            error.Position
+                        );
+                        HighlightError(editor, error.Position);
+                    }
                 }
                 else
                 {
                     PrintParseTree(parser.ParseTree, tokenTable, 0);
                 }
 
-                // Ошибки синтаксиса
-                if (parser.HasErrors)
-                {
-                    foreach (var error in parser.Errors)
-                    {
-                        tokenTable.Rows.Add(0, "ОШИБКА", error.Message, error.Position);
-
-                        // Подсветка
-                        if (error.Position >= 0 && error.Position < editor.TextLength)
-                        {
-                            int start = error.Position;
-                            int length = Math.Max(1, tokens.FirstOrDefault(t => t.Position == error.Position)?.Value.Length ?? 1);
-                            editor.Select(start, length);
-                            editor.SelectionBackColor = Color.Pink;
-                        }
-                    }
-                }
-                // Авторазмер столбцов
+                // Автоматическое форматирование столбцов
                 tokenTable.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             }
+        }
+
+        private void AddHeaderRow(DataGridView table, string text, Color backColor)
+        {
+            int rowIndex = table.Rows.Add();
+            DataGridViewRow row = table.Rows[rowIndex];
+            row.DefaultCellStyle.BackColor = backColor;
+            row.DefaultCellStyle.Font = new Font(table.Font, FontStyle.Bold);
+            row.Cells["NodeType"].Value = text;
+            row.Cells["NodeType"].Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            row.Cells["Value"].Value = "";
+            row.Cells["Position"].Value = "";
+            table.Rows[rowIndex].ReadOnly = true;
         }
 
         private void AddTreeNodesToTable(ParseTreeNode node, DataGridView table, int level)
@@ -909,30 +940,88 @@ namespace Lab1_compile
             return "[нет значения]";
         }
 
-        private string GetTokenTypeName(TokenType type)
-{
-    switch (type)
-    {
-        case TokenType.IfKeyword: return "Ключевое слово";
-        case TokenType.ThenKeyword: return "Ключевое слово";
-        case TokenType.Identifier: return "Идентификатор";
-        case TokenType.Number: return "Число";
-        case TokenType.Plus: return "Оператор";
-        case TokenType.Multiply: return "Оператор";
-        case TokenType.Equals: return "Оператор сравнения";
-        case TokenType.NotEquals: return "Оператор сравнения";
-        case TokenType.LessThan: return "Оператор сравнения";
-        case TokenType.LessOrEqual: return "Оператор сравнения";
-        case TokenType.GreaterThan: return "Оператор сравнения";
-        case TokenType.GreaterOrEqual: return "Оператор сравнения";
-        case TokenType.LeftParenthesis: return "Скобка";
-        case TokenType.RightParenthesis: return "Скобка";
-        case TokenType.EndOfInput: return "Конец ввода";
-        default: return "Неизвестный";
-    }
-}
 
-private string GetTokenDescription(TokenType type)
+        private void PrintParseTree(ParseTreeNode node, DataGridView table, int level)
+        {
+            if (node == null) return;
+
+            // Определяем отступ для визуализации иерархии
+            string indent = new string(' ', level * 3);
+            string prefix = level > 0 ? "└─ " : "";
+
+            // Добавляем строку для текущего узла
+            int rowIndex = table.Rows.Add(
+                level,
+                indent + prefix + GetRussianNodeName(node.NodeType),
+                node.Value ?? "",
+                node.Position >= 0 ? node.Position.ToString() : ""
+            );
+
+            // Настраиваем внешний вид строки
+            DataGridViewRow row = table.Rows[rowIndex];
+            if (level == 0)
+            {
+                row.DefaultCellStyle.BackColor = Color.Lavender;
+            }
+            else if (IsTerminalNode(node))
+            {
+                row.DefaultCellStyle.ForeColor = Color.DarkGreen;
+            }
+
+            // Рекурсивно добавляем детей
+            foreach (var child in node.Children)
+            {
+                PrintParseTree(child, table, level + 1);
+            }
+        }
+
+        private string GetRussianNodeName(string nodeType)
+        {
+            switch (nodeType)
+            {
+                case "ConditionalStatement": return "Условный оператор";
+                case "Condition": return "Условие";
+                case "Expression": return "Выражение";
+                case "Term": return "Терм";
+                case "Factor": return "Множитель";
+                case "Identifier": return "Идентификатор";
+                case "Number": return "Число";
+                case "Operator": return "Оператор";
+                case "Keyword": return "Ключевое слово";
+                case "Parentheses": return "Скобки";
+                case "Symbol": return "Символ";
+                default: return nodeType;
+            }
+        }
+
+        private bool IsTerminalNode(ParseTreeNode node)
+        {
+            return node.Children.Count == 0 && !string.IsNullOrEmpty(node.Value);
+        }
+
+        private string GetTokenTypeName(TokenType type)
+        {
+            switch (type)
+            {
+                case TokenType.IfKeyword: return "Ключевое слово IF";
+                case TokenType.ThenKeyword: return "Ключевое слово THEN";
+                case TokenType.Identifier: return "Идентификатор";
+                case TokenType.Number: return "Число";
+                case TokenType.Plus: return "Оператор +";
+                case TokenType.Multiply: return "Оператор *";
+                case TokenType.Equals: return "Оператор ==";
+                case TokenType.NotEquals: return "Оператор !=";
+                case TokenType.LessThan: return "Оператор <";
+                case TokenType.LessOrEqual: return "Оператор <=";
+                case TokenType.GreaterThan: return "Оператор >";
+                case TokenType.GreaterOrEqual: return "Оператор >=";
+                case TokenType.LeftParenthesis: return "Левая скобка";
+                case TokenType.RightParenthesis: return "Правая скобка";
+                default: return type.ToString();
+            }
+        }
+
+        private string GetTokenDescription(TokenType type)
 {
     switch (type)
     {
@@ -1027,22 +1116,20 @@ private string GetTokenDescription(TokenType type)
             }
         }
 
-        private void PrintParseTree(ParseTreeNode node, DataGridView table, int level)
+        private void HighlightError(RichTextBox editor, int position)
         {
-            if (node == null) return;
-
-            // Добавляем только текущий узел
-            table.Rows.Add(
-                level,
-                node.NodeType,
-                node.Value ?? "",
-                node.Position >= 0 ? node.Position.ToString() : ""
-            );
-
-            // Рекурсивно добавляем детей
-            foreach (var child in node.Children)
+            if (position >= 0 && position < editor.TextLength)
             {
-                PrintParseTree(child, table, level + 1);
+                // Находим длину токена, который вызвал ошибку
+                int length = 1;
+                while (position + length < editor.TextLength && !char.IsWhiteSpace(editor.Text[position + length]))
+                {
+                    length++;
+                }
+
+                editor.Select(position, length);
+                editor.SelectionBackColor = Color.Pink;
+                editor.SelectionColor = Color.DarkRed;
             }
         }
 

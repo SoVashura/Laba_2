@@ -7,11 +7,15 @@ using System.Windows.Forms;
 
 namespace Lab1_compile
 {
-    internal class EditorTab : TabPage
+    public class EditorTab : TabPage
     {
-        public Stack<string> UndoStack = new Stack<string>();
-        public Stack<string> RedoStack = new Stack<string>();
-
+        public Stack<string> UndoStack { get; } = new Stack<string>();
+        public Stack<string> RedoStack { get; } = new Stack<string>();
         public string FilePath { get; set; }
+
+        public EditorTab()
+        {
+            UndoStack.Push(""); // Инициализация пустым состоянием
+        }
     }
 }

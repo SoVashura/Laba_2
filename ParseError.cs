@@ -10,10 +10,5 @@
             Message = message;
             Position = position;
         }
-
-        public override string ToString()
-        {
-            return $"Ошибка (позиция {Position}): {Message}";
-        }
     }
 }
