@@ -64,6 +64,27 @@ L(G[<условный оператор>]) = {
 
 ## Схема вызова функций: 
 
+```bnf
+Parser.Parse()
+├── ParseConditionalStatement()  
+│   ├── ParseCondition()        
+│   │   ├── ParseExpression()    
+│   │   │   ├── ParseTerm()
+│   │   │   │   └── ParseFactor()
+│   │   │   │       ├── (рекурсия в ParseExpression при скобках)
+│   │   │   │       └── ParseIdentifier()
+│   │   │   └── (рекурсия при +)
+│   │   ├── ParseRelationOp()     
+│   │   └── ParseExpression()    
+│   └── ParseStatement()        
+│       ├── ParseExpression()    
+│       └── ParseConditionalStatement()  
+│
+└── (проверка конца ввода)
+```
+
+## Диаграмма сканеа: 
+![Диаграмма сканера](/scaner.png)
 
 ## Тестовые примеры: 
 ![Корректный ввод](/test1.png)
@@ -71,3 +92,7 @@ L(G[<условный оператор>]) = {
 ![Ошибочный ввод](/test2.png)
 
 ![Ошибочный ввод](/test3.png)
+
+![Ошибочный ввод](/test4.png)
+
+![Ошибочный ввод](/test5.png)
